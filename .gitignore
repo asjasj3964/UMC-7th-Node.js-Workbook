@@ -1,0 +1,6 @@
+# dependency directories
+node_mudules/
+
+# detenv environment variable files
+.env
+.env.*
