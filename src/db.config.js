@@ -1,6 +1,7 @@
 // src/db.config.js
 import mysql from 'mysql2/promise'; // MySQL 데이터베이스와 연결
 import dotenv from 'dotenv'; 
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config(); // process.env 객체에 아래의 값들이 로드된다. 
 export const pool = mysql.createPool({ // 데이터베이스 연결 풀(connection pool) 생성
@@ -16,4 +17,6 @@ export const pool = mysql.createPool({ // 데이터베이스 연결 풀(connecti
     connectionLimit: 10, // 몇 개의 커넥션을 가지게끔 할 것인지 
     queueLimit: 0, // getConnection에서 오류가 발생하기 전에 Pool에 대기할 요청의 개수 한도
 });
- 
+
+
+export const prisma = new PrismaClient({ log: ["query"] });

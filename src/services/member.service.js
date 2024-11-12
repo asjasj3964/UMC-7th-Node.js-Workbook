@@ -1,7 +1,9 @@
-// src/services/member.service.js
-import { responseFromMember } from './member.dto.js';
+import { responseFromMember } from '../dtos/member.dto.js';
 import { addMember, getMember, getMemberFavoriteFoodKindByMemberId, setFavoriteFoodKind } from '../repositories/member.repository.js'
-
+import { responseFromReviews } from '../dtos/review.dto.js';
+import { getAllMemberReviews, getAllMemberMissions } from '../repositories/member.repository.js';
+import { responseFromMissions, responseFromMission } from '../dtos/mission.dto.js';
+import { updateMissionCompleted } from '../repositories/member.repository.js';
 export const memberSignUp = async(data) => {
     const joinMemberId = await addMember({ // 생성된 회원의 ID 반환
         name: data.name,
@@ -21,4 +23,22 @@ export const memberSignUp = async(data) => {
     const member = await getMember(joinMemberId); // ID로 회원의 기본 정보 조회
     const favoriteFoodKinds = await getMemberFavoriteFoodKindByMemberId(joinMemberId); // member-favoriteFoodKind ID로 회원의 선호 음식 목록 조회
     return responseFromMember({ member, favoriteFoodKinds }); // DTO(최종 응답 형식)으로 변환하여 클라이언트에 반환
+}
+
+export const listMemberReviews = async(memberId, cursor) => {
+    const reviews = await getAllMemberReviews(memberId, cursor);
+    return responseFromReviews(reviews);
+} 
+
+export const listMemberMissions = async(memberId, cursor) => {
+    const missions = await getAllMemberMissions(memberId, cursor);
+    return responseFromMissions(missions);
+}
+
+export const missionUpdateCompleted = async(memberId, missionId) => {
+    const mission = await updateMissionCompleted(memberId, missionId);
+    if (mission === null){
+        throw new Error("완료할 수 없거나 존재하지 않은 미션"); 
+    }
+    return responseFromMission(mission);
 }
