@@ -1,5 +1,6 @@
 import { pool, prisma } from "../db.config.js";
 
+// 미션 데이터 삽입 (미션 등록) & 미션 ID 반환 
 export const addMission = async(data) => {
     // const conn = await pool.getConnection();
     // try{
@@ -30,24 +31,36 @@ export const addMission = async(data) => {
     // }finally{
     //     conn.release();
     // }
-    const mission = await prisma.mission.findFirst({where: {restaurantId: data.restaurant, name: data.name, introduction: data.introduction}});
-    console.log(data);
-    const restaurant = await prisma.restaurant.findFirst({where: {id: data.restaurant}})
-    if (mission != null || restaurant == null){
+
+    // 등록하려는 식당 ID, 미션 이름, 미션 내용과 모두 일치하는 중복 미션이 존재하는지 확인
+    const mission = await prisma.mission.findFirst({
+        where: {
+            restaurantId: data.restaurant, 
+            name: data.name, 
+            introduction: data.introduction
+        }
+    });
+    // 등록하려는 식당이 존재하는지 확인
+    const restaurant = await prisma.restaurant.findFirst({
+        where: {
+            id: data.restaurant
+        }
+    });
+    if (mission != null || restaurant == null){ // 중복 미션이 있거나 식당이 존재하지 않을 시 
         return null;
     }
-    const created = await prisma.mission.create({
-        data: {
-            ...data,
+    const created = await prisma.mission.create({ // 미션 생성
+        data: { // 생성할 데이터 객체
+            ...data, // 매개변수로 전달 받은 data 객체의 모든 속성을 복사한다.
             restaurant: {
-                connect: { id: data.restaurant } // restaurant 연결
+                connect: { id: data.restaurant } // restaurant 테이블과 관계 연결
             }
         }
     });
-    console.log(created)
-    return created.id;
+    return created.id; // 생성된 미션 ID 반환
 }
 
+// 미션 ID로 미션 조회
 export const getMission = async(missionId) => {
     // const conn = await pool.getConnection();
     // try{
@@ -68,6 +81,7 @@ export const getMission = async(missionId) => {
     // }finally{
     //     conn.release();
     // }
+
     const mission = await prisma.mission.findFirstOrThrow({ 
         select: {
             id: true,
@@ -93,6 +107,7 @@ export const getMission = async(missionId) => {
     return formattedMission;
 }
 
+// 미션 ID로 식당 조회
 export const getRestaurantByMissionId = async(missionId) => {
     // const conn = await pool.getConnection();
     // try{
@@ -113,6 +128,7 @@ export const getRestaurantByMissionId = async(missionId) => {
     // }
 }
 
+// 특정 미션 상태 업데이트(진행 X -> 진행 중)
 export const updateMissionStatus = async(missionId) => {
     // const conn = await pool.getConnection();
     // try{
@@ -144,12 +160,14 @@ export const updateMissionStatus = async(missionId) => {
     // }finally{
     //     conn.release();
     // }
+
+    // 업데이트할 미션이 존재하는지 확인
     const mission = await prisma.mission.findFirst({
         where: {
             id: missionId
         }
-    })
-
+    });
+    // 해당 미션의 상태를 확인하기 위해 status 선택
     const missionStatus = await prisma.mission.findFirst({
         select: {
             status: true
@@ -157,18 +175,17 @@ export const updateMissionStatus = async(missionId) => {
         where: {
             id: missionId
         }
-    })
-
+    });
+    // 해당 미션이 존재하지 않거나 상태가 진행 X가 아닐 경우
     if (mission == null || missionStatus.status != 0){
         return null;
     }
-
     const missionUpdated = await prisma.mission.update({
         where: {
             id: missionId
         },
         data: {
-            status: 1 // status 값을 1로 변경
+            status: 1 // status 값을 1(진행 중)로 변경
         },
         select: {
             id: true, 
@@ -179,8 +196,7 @@ export const updateMissionStatus = async(missionId) => {
             points: true,
             status: true,
         }
-    })
-
+    });
     const formattedMission = {
         ...missionUpdated,
         id: missionUpdated.id.toString(),

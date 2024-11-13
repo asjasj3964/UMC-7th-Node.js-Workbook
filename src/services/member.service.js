@@ -4,8 +4,10 @@ import { responseFromReviews } from '../dtos/review.dto.js';
 import { getAllMemberReviews, getAllMemberMissions } from '../repositories/member.repository.js';
 import { responseFromMissions, responseFromMission } from '../dtos/mission.dto.js';
 import { updateMissionCompleted } from '../repositories/member.repository.js';
+
+// 회원 추가 및 선호 음식 매핑, 유효하지 않은 데이터 에러 처리
 export const memberSignUp = async(data) => {
-    const joinMemberId = await addMember({ // 생성된 회원의 ID 반환
+    const joinMemberId = await addMember({ // 해당 데이터로 회원 생성 후 회원의 ID 반환
         name: data.name,
         nickname: data.nickname,
         gender: data.gender,
@@ -14,7 +16,7 @@ export const memberSignUp = async(data) => {
         email: data.email,
         phoneNumber: data.phoneNumber,
     });
-    if (joinMemberId === null){
+    if (joinMemberId === null){ // 등록하려는 회원의 ID가 null일 경우 에러 처리
         throw new Error("중복된 이메일"); // 동일한 이메일로 여러 계정을 만드는 것을 방지
     }
     for (const favoriteFoodKind of data.favoriteFoodKinds){
@@ -25,6 +27,7 @@ export const memberSignUp = async(data) => {
     return responseFromMember({ member, favoriteFoodKinds }); // DTO(최종 응답 형식)으로 변환하여 클라이언트에 반환
 }
 
+// 레파지토리 호출 및 DTO로 변환
 export const listMemberReviews = async(memberId, cursor) => {
     const reviews = await getAllMemberReviews(memberId, cursor);
     return responseFromReviews(reviews);
@@ -38,7 +41,7 @@ export const listMemberMissions = async(memberId, cursor) => {
 export const missionUpdateCompleted = async(memberId, missionId) => {
     const mission = await updateMissionCompleted(memberId, missionId);
     if (mission === null){
-        throw new Error("완료할 수 없거나 존재하지 않은 미션"); 
+        throw new Error("완료할 수 없거나 존재하지 않은 미션"); // 유효하지 않은 데이터 에러 처리
     }
     return responseFromMission(mission);
 }

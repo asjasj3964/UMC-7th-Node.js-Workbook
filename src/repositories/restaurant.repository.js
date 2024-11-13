@@ -1,5 +1,6 @@
 import { pool, prisma } from "../db.config.js"
 
+// 식당 데이터 삽입 (식당 등록) & 식당 ID 반환 
 export const addRestaurant = async(data) => {
     // const conn = await pool.getConnection();
     // try{
@@ -31,8 +32,8 @@ export const addRestaurant = async(data) => {
     // }finally{
     //     conn.release();
     // }
+
     const restaurant = await prisma.restaurant.findFirst({where: {name: data.name, regionId: data.regionId}});
-    console.log(restaurant);
     if (restaurant){
         return null;
     }
@@ -47,10 +48,10 @@ export const addRestaurant = async(data) => {
             }, 
         }
     });
-    console.log(created)
     return created.id;
 }
 
+// 식당 ID로 식당 조회
 export const getRestaurant = async(restaurantId) => {
     // const conn = await pool.getConnection();
     // try{
@@ -82,8 +83,8 @@ export const getRestaurant = async(restaurantId) => {
             endTime: true,
             totalRating: true,
         },
-        where: { id: restaurantId }});
-
+        where: { id: restaurantId }
+    });
         const formattedRestaurant = {
             ...restaurant,
             id: restaurant.id.toString(),
@@ -96,7 +97,6 @@ export const getRestaurant = async(restaurantId) => {
                 name: restaurant.ceo.name.toString()
             }
         };
-    console.log(formattedRestaurant)
     return formattedRestaurant;
 }
 
@@ -121,7 +121,7 @@ export const getrestaurantRegionByRestaurantId = async (restaurantId) => {
     }
 }
 
-// 식당 ceo 반환
+// CEO ID로 식당의 CEO의 이름 알아내기
 export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
     const conn = await pool.getConnection();
     try{
@@ -142,12 +142,11 @@ export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
     }
 }
 
+// 특정 식당의 모든 리뷰 조회
 export const getAllRestaurantReviews = async (restaurantId, cursor) => {
     const reviews = await prisma.review.findMany({ // Prisma ORM을 사용하여 review 테이블에서 여러 개의 레코드를 조회한다. 
         select: {
             id: true,
-            //memberId: true,
-            //restauranId: true,
             member: true,
             restaurant: true,
             rating: true,
@@ -159,7 +158,6 @@ export const getAllRestaurantReviews = async (restaurantId, cursor) => {
         orderBy: { id: "asc"},
         take: 5,
     })
-
     const formattedReviews = reviews.map(review => ({
         ...review,
         id: review.id.toString(),
@@ -181,6 +179,7 @@ export const getAllRestaurantReviews = async (restaurantId, cursor) => {
     return formattedReviews;
 }
 
+// 특정 식당의 모든 미션 조회
 export const getAllRestaurantMissions = async(restaurantId, cursor) => {
     const missions = await prisma.mission.findMany({
         select: {
@@ -195,7 +194,6 @@ export const getAllRestaurantMissions = async(restaurantId, cursor) => {
         orderBy: { id: "asc" },
         take: 5
     })
-
     const formattedMissions = missions.map(mission => ({
         ...mission,
         id: mission.id.toString(),

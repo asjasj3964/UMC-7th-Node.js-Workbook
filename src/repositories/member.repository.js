@@ -1,6 +1,6 @@
 import { prisma, pool } from "../db.config.js";
 
-// 회원 데이터 삽입 (회원 등록)
+// 회원 데이터 삽입 (회원 등록) & 회원 ID 반환
 export const addMember = async(data) => {
     // const conn = await pool.getConnection();
     // try{
@@ -120,7 +120,7 @@ export const getMemberFavoriteFoodKindByMemberId = async (memberId) => {
     //     conn.release();
     // }
 
-    const favoriteFoodKinds = await prisma.memberFavoriteFoodKind.findMany({ // 여러 레코드를 조회한다. 조건에 맞는 모든 레코드를 배열 형태로 반환
+    const favoriteFoodKinds = await prisma.memberFavoriteFoodKind.findMany({ // 여러 레코드 조회, 조건에 맞는 모든 레코드를 배열 형태로 반환
         select: { // 반환할 필드 명시
             id: true,
             memberId: true,
@@ -149,27 +149,30 @@ export const getMemberFavoriteFoodKindByMemberId = async (memberId) => {
 //         orderBy: { id: "asc"},
 //         take: 5,
 //     })
-
 //     return reviews;
 // }
 
+// 특정 회원의 모든 리뷰 조회
 export const getAllMemberReviews = async(memberId, cursor) => {
     const reviews = await prisma.review.findMany({
         select: {
             id: true,
-            member: true,
-            restaurant: true,
+            member: true, // 참조하는 member 테이블
+            restaurant: true, // 참조하는 restaurantn 테이블
             rating: true,
             content: true,
             status: true
         },
         where: { memberId: memberId, id: { gt: cursor }},
-        orderBy: { id: "asc"},
-        take: 5,
+        // 리뷰의 ID가 cursor보다 큰 레코드만 가져온다. 
+        // gt: "greater than", 값이 cursor보다 큰 데이터를 필터링한다. (페이징 구현)
+        orderBy: { id: "asc"}, // ID 기준 오름차순 정렬
+        take: 5, // 5개의 레코드만 조회
     })
 
-    const formattedReviews = reviews.map(review => ({
-        ...review,
+    // review 객체의 형변환 (BigInt 처리를 위함)
+    const formattedReviews = reviews.map(review => ({ // reviews(DB에서 추출한 리뷰 데이터) 배열을 map() 메서드로 각 review 객체 변환
+        ...review, // review 객체의 모든 속성 복사
         id: review.id.toString(),
         // DB의 id 필드가 BigInt 타입으로 정의되어 있는데
         // javaScript에선 BigInt 타입은 JSON으로 변환할 수 없어
@@ -183,7 +186,7 @@ export const getAllMemberReviews = async(memberId, cursor) => {
             location: review.member.location,
             phoneNumber: review.member.phoneNumber
         },
-        restaurant: {
+        restaurant: { // 참조하는 restaurant 테이블에서 추출할 속성
             id: review.restaurant.id.toString(),
             name: review.restaurant.name
         },
@@ -192,6 +195,8 @@ export const getAllMemberReviews = async(memberId, cursor) => {
     return formattedReviews;
 }
 
+
+// 특정 회원의 모든 미션 조회
 export const getAllMemberMissions = async(memberId, cursor) => {
     const memberMissions = await prisma.memberMission.findMany({
         select: {
@@ -202,7 +207,7 @@ export const getAllMemberMissions = async(memberId, cursor) => {
         where: { 
             memberId: memberId, 
             mission: {
-                status: 1
+                status: 1 // mission 객체의 status가 1(진행 중)인 미션들만 조회온다.
             },
             id: {gt: cursor}
         },
@@ -232,7 +237,9 @@ export const getAllMemberMissions = async(memberId, cursor) => {
     return formattedMemberMissions;
 }
 
+// 특정 회원의 특정 미션의 상태 업데이트(진행 중 -> 진행 완료)
 export const updateMissionCompleted = async(memberId, missionId) => {
+    // 특정 회원에 주어진 특정 미션이 존재하는지 확인
     const confirmMemberMission = await prisma.memberMission.findFirst({
         where: {
             missionId: missionId,
@@ -240,6 +247,7 @@ export const updateMissionCompleted = async(memberId, missionId) => {
         }
     })
 
+    // 해당 미션의 상태를 확인하기 위해 status 선택
     const missionStatus = await prisma.mission.findFirst({
         select: {
             status: true
@@ -249,24 +257,27 @@ export const updateMissionCompleted = async(memberId, missionId) => {
         }
     })
 
+    // 해당 미션이 존재하지 않거나 미션의 상태가 1(진행 중)이 아닐 경우 에러 처리
     if (confirmMemberMission == null || missionStatus.status != 1){
         return null;
     }
     
     const memberMission = await prisma.memberMission.update({
         where: {
+            // update 메서드는 지정한 Unique key를 사용하여 레코드를 찾기 때문에 
+            // memberId, missionId로 이루어진 복합 고유 키인 memberId_missionId_unique을 만들어주었다. 
             memberId_missionId_unique: {
                 memberId: memberId,
                 missionId: missionId
-            }
+            } 
         },
-        data: {
+        data: { // 수정할 내용 정의
             mission:{
-                update:{
-                    status: 2
+                update:{ // mission의 특정 속성 업데이트
+                    status: 2 // 진행 완료로 업데이트
                 }
         }},
-        select: {
+        select: { // 반환할 특정 속성 지정
             id: true,
             member: true,
             mission: true,

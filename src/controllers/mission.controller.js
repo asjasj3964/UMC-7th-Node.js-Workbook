@@ -17,7 +17,6 @@ export const handleMissionUpdateStatus = async(req, res, next) => {
     const missionId = req.params.id;
     const updateMission = await missionUpdateStatus(
         parseInt(missionId), 
-        //bodyToMissionUpdate(req.body)
     )
     res.status(StatusCodes.OK).json(updateMission);
 }

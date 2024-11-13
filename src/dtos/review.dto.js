@@ -18,6 +18,7 @@ export const responseFromReviews = (reviews) => {
     };
 };
 
+// review 응답 DTO
 // export const responseFromReview = ({ review, restaurant, reviewWriter }) => {
 //     return {
 //         member: reviewWriter[0].member_name,

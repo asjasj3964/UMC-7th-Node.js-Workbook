@@ -10,6 +10,7 @@ export const bodyToRestaurant = (body) => {
     };
 };
 
+// restaurant 응답 DTO
 // export const responseFromRestaurant = ({ restaurant, region, restaurantCeo }) => {
 //     return {
 //         ceo: restaurantCeo[0].member_name,

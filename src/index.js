@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
 app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내면 핸들러 함수가 실행된다. 
 // curl.exe -X POST "http://localhost:3001/members" -H "Content-Type: application/json" -d '{\"name\":\"안성진\",\"nickname\":\"웬티\",\"gender\":2,\"birth\": \"2000-04-24\",\"location\": \"위치\",\"email\": \"이메일4\",\"phoneNumber\": \"010-0000-0000\", \"favoriteFoodKinds\": [1, 5, 6] }'
 
-
 // app.post("/members", (req, res) => {
 //   console.log("라우트 도달");
 //   console.log("body:", req.body);

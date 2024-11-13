@@ -1,9 +1,10 @@
 import { prisma, pool } from "../db.config.js";
 
+// 리뷰 데이터 삽입 (리뷰 등록) & 리뷰 ID 반환
 export const addReview = async(data) => {
     // const conn = await pool.getConnection();
     // try{
-    //     // 리뷰를 추가하려는 가게가 존재하는지 검증
+    //     // 리뷰를 추가하려는 식당이 존재하는지 검증
     //     const [confirm] = await pool.query(
     //         `SELECT EXISTS(SELECT 1 FROM restaurant WHERE id = ?)as isExistRestaurant;`,
     //         data.restaurant
@@ -30,24 +31,25 @@ export const addReview = async(data) => {
     //     conn.release();
     // }
 
+    // 리뷰를 추가하려는 식당이 존재하는지 검증
     const restaurant = await prisma.restaurant.findFirst( {
         where: {
-            id: data.restaurant
+            id: data.restaurant // 등록할 식당의 ID를 가진 가게가 있는지 확인
         }
     })
-    if (restaurant == null){
+    if (restaurant == null){ // 해당 식당이 존재하지 않다면
         return null;
     } 
     const created = await prisma.review.create({
         data: {
             ...data,
             member: {
-                connect: {
+                connect: { // member 테이블과 관계 연결
                     id: data.member
                 }
             },
             restaurant:{
-                connect: {
+                connect: { // restaurant 테이블과 관계 연결
                     id: data.restaurant
                 }
             }
@@ -56,6 +58,7 @@ export const addReview = async(data) => {
     return created.id;
 }
 
+// 리뷰 ID로 리뷰 조회
 export const getReview = async(reviewId) => {
     // const conn = await pool.getConnection();
     // try{
@@ -106,6 +109,7 @@ export const getReview = async(reviewId) => {
     return formattedReview;
 }
 
+// 리뷰 ID로 리뷰 등록한 식당의 이름 알아낸기
 export const getReviewRestaurantByReviewId = async(reviewId) => {
     const conn = await pool.getConnection();
     try{
@@ -126,6 +130,7 @@ export const getReviewRestaurantByReviewId = async(reviewId) => {
     }
 }
 
+// 리뷰 작성자 ID로 작성자의 이름 알아내기
 export const getReviewWriterByWriterId = async(reviewWriterId) => {
     const conn = await pool.getConnection();
     try{

@@ -10,13 +10,6 @@ export const bodyToMission = (body) => {
     };
 };
 
-// // missionUpdateStatus DTO
-// export const bodyToMissionUpdate = (body) => {
-//     return {
-//         status: body.status
-//     }
-// }
-
 // mission 목록 응답 DTO
 export const responseFromMissions = (missions) => {
     return {
