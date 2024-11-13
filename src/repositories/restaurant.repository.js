@@ -33,18 +33,24 @@ export const addRestaurant = async(data) => {
     //     conn.release();
     // }
 
-    const restaurant = await prisma.restaurant.findFirst({where: {name: data.name, regionId: data.regionId}});
-    if (restaurant){
+    // 등록하고자 하는 식당의 이름과 위치가 같은 중복 식당이 존재하는지 확인
+    const restaurant = await prisma.restaurant.findFirst({
+        where: {
+            name: data.name, 
+            regionId: data.region
+        }
+    });
+    if (restaurant){ // 중복 식당일 경우
         return null;
     }
     const created = await prisma.restaurant.create({
         data: {
             ...data,
             region: {
-                connect: { id: data.region } // region 연결
+                connect: { id: data.region } // region 테이블 관계 연결
             },
             ceo: {
-                connect: { id: data.ceo }
+                connect: { id: data.ceo }  // ceo(member) 테이블 관계 연결
             }, 
         }
     });
