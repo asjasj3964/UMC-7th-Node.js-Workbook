@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { bodyToMember } from "../dtos/member.dto.js";
 import { memberSignUp } from "../services/member.service.js"
 
+// 회원 등록 핸들러
 export const handlerMemberSignUp = async(req, res, next) => {
     console.log("회원가입 요청");
     console.log("body: ", req.body); // 값이 잘 들어오는지 테스트

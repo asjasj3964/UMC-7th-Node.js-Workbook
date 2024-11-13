@@ -1,4 +1,4 @@
-import { responseFromMission } from "./mission.dto.js";
+import { responseFromMission } from "../dtos/mission.dto.js";
 import { addMission, getMission, getRestaurantByMissionId, updateMissionStatus } from "../repositories/mission.repository.js";
 
 export const missionRegist = async(data) => {
@@ -10,7 +10,7 @@ export const missionRegist = async(data) => {
         points: data.points
     })
     if (registMissionId === null){
-        throw new Error("중복된 미션 또는 존재하지 않은 식당"); // 동일한 식당을 등록하는 것을 방지
+        throw new Error("중복된 미션 또는 존재하지 않은 식당"); 
     }
     const mission = await getMission(registMissionId);
     const restaurant = await getRestaurantByMissionId(registMissionId);

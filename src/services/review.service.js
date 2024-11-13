@@ -1,4 +1,4 @@
-import { responseFromReview } from './review.dto.js';
+import { responseFromReview } from '../dtos/review.dto.js';
 import { addReview, getReview, getReviewRestaurantByReviewId, getReviewWriterByWriterId } from '../repositories/review.repository.js';
 
 export const reviewRegist = async(data) => {

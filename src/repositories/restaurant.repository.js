@@ -1,5 +1,6 @@
 import { pool } from "../db.config.js"
 
+// 식당 데이터 삽입 (식당 등록) & 식당 ID 반환
 export const addRestaurant = async(data) => {
     const conn = await pool.getConnection();
     try{
@@ -8,9 +9,10 @@ export const addRestaurant = async(data) => {
             `SELECT EXISTS(SELECT 1 FROM restaurant WHERE region_id = ? and restaurant_name = ?) as isExistRestaurant`, 
             [data.region, data.name] 
         );
-        if (confirm[0].isExistRestaurant) {
+        if (confirm[0].isExistRestaurant) { // 중복된 식당일 경우
             return null;
         }
+        // 식당 생성
         const [result] = await pool.query(
             `INSERT INTO restaurant (ceo_id, region_id, restaurant_name, introduction, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?);`,
             [
@@ -21,7 +23,7 @@ export const addRestaurant = async(data) => {
                 data.startTime,
                 data.endTime,
             ]
-        );
+        ); // 식당 데이터 삽입
         return result.insertId;
     }catch(err){
         throw new Error(`
@@ -33,6 +35,7 @@ export const addRestaurant = async(data) => {
     }
 }
 
+// 식당 ID로 식당 조회
 export const getRestaurant = async(restaurantId) => {
     const conn = await pool.getConnection();
     try{
@@ -64,7 +67,7 @@ export const getrestaurantRegionByRestaurantId = async (restaurantId) => {
             FROM restaurant rest JOIN region re ON rest.region_id = re.id
             WHERE rest.id = ?`,
             restaurantId
-        );
+        ); // restaurant 테이블과 region 테이블을 join해 해당 식당의 위치 정보를 조회한다. 
         return region;
     }catch(err){
         throw new Error(`
@@ -85,7 +88,7 @@ export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
             FROM restaurant rest JOIN member mem ON rest.ceo_id = mem.id
             WHERE rest.ceo_id = ?`,
             restaurantCeoId
-        );
+        ); // restaurant 테이블과 member 테이블을 join해 해당 식당의 CEO(회원) 정보를 조회한다.
         return restaurantCeo;
     }catch(err){
         throw new Error(`

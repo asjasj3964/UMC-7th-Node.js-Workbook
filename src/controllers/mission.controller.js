@@ -10,6 +10,7 @@ export const handlerMissionRegist = async(req, res, next) => {
     res.status(StatusCodes.OK).json({ result: mission });
 }
 
+// 미션 상태 업데이트 핸들러
 export const handlerMissionUpdateStatus = async(req, res, next) => {
     console.log("미션 업데이트");
     const missionId = req.params.id;

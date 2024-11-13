@@ -44,7 +44,7 @@ app.post("/missions", handlerMissionRegist);
 // curl.exe -X POST "http://localhost:3001/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'
 
 app.patch("/missions/:id", handlerMissionUpdateStatus);
-// curl.exe -X PATCH "http://localhost:3001/missions/1" -H "Content-Type: application/json" -d '{\"status\":1}'
+// curl.exe -X PATCH "http://localhost:3001/missions/1"
 
 // 서버 실행
 app.listen(port, () => {

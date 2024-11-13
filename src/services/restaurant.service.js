@@ -1,4 +1,4 @@
-import { responseFromRestaurant } from './restaurant.dto.js';
+import { responseFromRestaurant } from '../dtos/restaurant.dto.js';
 import { addRestaurant, getRestaurant, getrestaurantCeoByCeoId, getrestaurantRegionByRestaurantId } from "../repositories/restaurant.repository.js";
 
 export const restaurantRegist = async(data) => {
