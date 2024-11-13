@@ -114,7 +114,6 @@ export const getRestaurantByMissionId = async(missionId) => {
 }
 
 export const updateMissionStatus = async(missionId) => {
-    // console.log(`missionId: ${missionId} data.status: ${data.status}`);
     // const conn = await pool.getConnection();
     // try{
     //     const [confirm1] = await pool.query(
