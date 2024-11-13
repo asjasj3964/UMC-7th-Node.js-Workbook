@@ -17,15 +17,12 @@ export const missionRegist = async(data) => {
     return responseFromMission({ mission, restaurant });
 }
 
-export const missionUpdateStatus = async(missionId, data) => {
-    console.log(`data: ${data.status} missionId: ${missionId}`);
-    const mission = await updateMissionStatus(missionId, data);
+export const missionUpdateStatus = async(missionId) => {
+    const mission = await updateMissionStatus(missionId);
     if (mission === null){
         throw new Error("도전할 수 없거나 존재하지 않은 미션"); 
     }
-    console.log(`mission: ${mission}`);
     const restaurant = await getRestaurantByMissionId(missionId);
-    console.log(`restaurant: ${restaurant}`);
     return responseFromMission({ mission, restaurant });
 }
  

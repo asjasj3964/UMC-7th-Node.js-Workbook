@@ -7,9 +7,6 @@ export const addMission = async(data) => {
             `SELECT EXISTS(SELECT 1 FROM mission WHERE restaurant_id = ? and mission_name = ? and introduction = ?) as isExistMission;`,
             [data.restaurant, data.name, data.introduction]
         );
-        // if (confirm1[0].isExistMission){
-        //     return null;
-        // }
         const [confirm2] = await pool.query(
             `SELECT EXISTS(SELECT 1 FROM restaurant WHERE id = ?) as isExistRestaurant;`,
             data.restaurant
@@ -74,8 +71,7 @@ export const getRestaurantByMissionId = async(missionId) => {
     }
 }
 
-export const updateMissionStatus = async(missionId, data) => {
-    console.log(`missionId: ${missionId} data.status: ${data.status}`);
+export const updateMissionStatus = async(missionId) => {
     const conn = await pool.getConnection();
     try{
         const [confirm1] = await pool.query(
@@ -90,8 +86,8 @@ export const updateMissionStatus = async(missionId, data) => {
             return null;
         }
         await pool.query(`
-            UPDATE mission SET status = ? WHERE id = ?;`,
-            [data.status, missionId]
+            UPDATE mission SET status = 1 WHERE id = ?;`,
+            missionId
         );
         const [mission] = await pool.query(`
             SELECT * FROM mission WHERE id = ?;`,

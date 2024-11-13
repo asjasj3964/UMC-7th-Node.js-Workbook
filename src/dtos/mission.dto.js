@@ -10,10 +10,10 @@ export const bodyToMission = (body) => {
     };
 };
 
-// missionUpdateStatus DTO
-export const bodyToMissionUpdate = (body) => {
-    return {
-        status: body.status
-    }
-}
+// // missionUpdateStatus DTO
+// export const bodyToMissionUpdate = (body) => {
+//     return {
+//         status: body.status
+//     }
+// }
  
