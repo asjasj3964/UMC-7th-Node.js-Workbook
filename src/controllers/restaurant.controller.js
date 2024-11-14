@@ -9,7 +9,7 @@ export const handleRestaurantRegist = async(req, res, next) => {
     console.log("body: ", req.body);
     const restaurant = await restaurantRegist(bodyToRestaurant(req.body));
     // res.status(StatusCodes.OK).json({ result: restaurant });
-    res.status(StatusCodes.OK).json(restaurant);
+    res.status(StatusCodes.OK).success(restaurant);
 
 }
 
@@ -20,7 +20,7 @@ export const handleListRestaurantReviews = async(req, res, next) => {
         typeof req.query.cursor === "string"? parseInt(req.query.cursor) : 0
         // cursor(Query Parameter)가 문자열이라면 parseInt로 정수로 변환, 그렇지 않으면 기본값 0
     ); 
-    res.status(StatusCodes.OK).json(reviews);
+    res.status(StatusCodes.OK).success(reviews);
 }
 
 // 특정 식당 모든 미션 조회 핸들러
@@ -29,5 +29,5 @@ export const handleListRestaurantMissions = async(req, res, next) => {
         parseInt(req.params.restaurantId),
         typeof req.query.cursor === "string"? parseInt(req.query.cursor) : 0
     );
-    res.status(StatusCodes.OK).json(missions);
+    res.status(StatusCodes.OK).success(missions);
 }

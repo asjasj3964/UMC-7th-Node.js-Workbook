@@ -150,6 +150,10 @@ export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
 
 // 특정 식당의 모든 리뷰 조회
 export const getAllRestaurantReviews = async (restaurantId, cursor) => {
+    const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
+    if (restaurant == null){
+        return null;
+    }
     const reviews = await prisma.review.findMany({ // Prisma ORM을 사용하여 review 테이블에서 여러 개의 레코드를 조회한다. 
         select: {
             id: true,
@@ -187,6 +191,10 @@ export const getAllRestaurantReviews = async (restaurantId, cursor) => {
 
 // 특정 식당의 모든 미션 조회
 export const getAllRestaurantMissions = async(restaurantId, cursor) => {
+    const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
+    if (restaurant == null){
+        return null;
+    }
     const missions = await prisma.mission.findMany({
         select: {
             id: true,

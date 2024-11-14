@@ -7,6 +7,6 @@ export const handleReviewRegist = async(req, res, next) => {
     console.log("리뷰 등록");
     console.log("body: ", req.body);
     const review = await reviewRegist(bodyToReview(req.body));
-    res.status(StatusCodes.OK).json(review)
+    res.status(StatusCodes.OK).success(review)
 }
  

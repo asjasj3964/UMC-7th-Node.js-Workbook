@@ -8,7 +8,7 @@ export const handleMissionRegist = async(req, res, next) => {
     console.log("미션 등록");
     console.log("body: ", req.body);
     const mission = await missionRegist(bodyToMission(req.body));
-    res.status(StatusCodes.OK).json(mission);
+    res.status(StatusCodes.OK).success(mission);
 }
 
 // 미션 상태 업데이트 핸들러
@@ -18,6 +18,6 @@ export const handleMissionUpdateStatus = async(req, res, next) => {
     const updateMission = await missionUpdateStatus(
         parseInt(missionId), 
     )
-    res.status(StatusCodes.OK).json(updateMission);
+    res.status(StatusCodes.OK).success(updateMission);
 }
  

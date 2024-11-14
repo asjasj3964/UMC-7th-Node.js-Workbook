@@ -154,6 +154,10 @@ export const getMemberFavoriteFoodKindByMemberId = async (memberId) => {
 
 // 특정 회원의 모든 리뷰 조회
 export const getAllMemberReviews = async(memberId, cursor) => {
+    const member = await prisma.member.findFirst({ where: {id: memberId }}); // findFirstOrThrow로 예외를 던지는 것보단 일단 findFirst를 한 뒤 에러 핸들링을 하였다. 
+    if (member == null){
+        return null;
+    }
     const reviews = await prisma.review.findMany({
         select: {
             id: true,
@@ -198,6 +202,10 @@ export const getAllMemberReviews = async(memberId, cursor) => {
 
 // 특정 회원의 모든 미션 조회
 export const getAllMemberMissions = async(memberId, cursor) => {
+    const member = await prisma.member.findFirst({ where: {id: memberId }});
+    if (member == null){
+        return null;
+    }
     const memberMissions = await prisma.memberMission.findMany({
         select: {
             id: true,
@@ -257,11 +265,16 @@ export const updateMissionCompleted = async(memberId, missionId) => {
         }
     })
 
-    // 해당 미션이 존재하지 않거나 미션의 상태가 1(진행 중)이 아닐 경우 에러 처리
-    if (confirmMemberMission == null || missionStatus.status != 1){
+    // 해당 미션이 존재하지 않을 경우
+    if (confirmMemberMission == null){
+        return -1;
+    }
+
+    // 미션의 상태가 1(진행 중)이 아닐 경우
+    if (missionStatus.status != 1){
         return null;
     }
-    
+
     const memberMission = await prisma.memberMission.update({
         where: {
             // update 메서드는 지정한 Unique key를 사용하여 레코드를 찾기 때문에 

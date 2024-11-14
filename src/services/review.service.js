@@ -1,6 +1,7 @@
 import { addReview, getReview, getReviewRestaurantByReviewId, getReviewWriterByWriterId } from '../repositories/review.repository.js';
 import { responseFromRestaurant } from '../dtos/restaurant.dto.js';
 import { responseFromReview } from '../dtos/review.dto.js';
+import { NotExistError } from '../errors.js';
 
 export const reviewRegist = async(data) => {
     const registReviewId = await addReview({
@@ -10,7 +11,7 @@ export const reviewRegist = async(data) => {
         content: data.content
     })
     if (registReviewId === null){
-        throw new Error("존재하지 않은 식당"); 
+        throw new NotExistError("존재하지 않은 식당"); 
     }
     const review = await getReview(registReviewId);
     // const restaurant = await getReviewRestaurantByReviewId(registReviewId);

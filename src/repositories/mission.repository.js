@@ -46,8 +46,13 @@ export const addMission = async(data) => {
             id: data.restaurant
         }
     });
-    if (mission != null || restaurant == null){ // 중복 미션이 있거나 식당이 존재하지 않을 시 
+    // 등록할 식당이 존재하지 않을 경우
+    if (restaurant == null){  
         return null;
+    }
+    // 중복 미션이 있을 경우
+    if (mission != null) {
+        return -1;
     }
     const created = await prisma.mission.create({ // 미션 생성
         data: { // 생성할 데이터 객체
@@ -176,8 +181,12 @@ export const updateMissionStatus = async(missionId) => {
             id: missionId
         }
     });
-    // 해당 미션이 존재하지 않거나 상태가 진행 X가 아닐 경우
-    if (mission == null || missionStatus.status != 0){
+    // 해당 미션이 존재하지 않을 경우
+    if (mission == null){
+        return -1;
+    }
+    // 상태가 진행 X가 아닐 경우
+    if (missionStatus.status != 0){
         return null;
     }
     const missionUpdated = await prisma.mission.update({
