@@ -16,6 +16,7 @@ const port = process.env.PORT;
 
 // 공통 응답을 사용할 수 있는 헬퍼 함수 등록
 app.use((req, res, next) => {
+  // 성공 응답 헬퍼 함수
   res.success = (success) => {
     return res.json({
       resultType: "SUCCESS",
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
       success
     });
   };
+  // 에러 응답 헬퍼 함수
   res.error = ({ errorCode = "unknown", reason = null, data = null}) => {
     return res.json({
       resultType: "FAIL",
@@ -95,8 +97,8 @@ app.patch("/members/:memberId/ongoing-missions/:missionId", handleMissionUpdateC
 
 // 전역 오류를 처리하기 위한 미들웨어
 app.use((err, req, res, next) => {
-  if (res.headersSent){
-    return next(err);
+  if (res.headersSent){ // 응답 헤더가 이미 클라이언트로 전송되었는지 확인
+    return next(err); // 추가적인 응답을 보낼 수 없으므로 에러를 다음 미들웨어로 전달
   }
   res.status(err.statusCode || 500).error({
     errorCode: err.errorCode || "unknown",

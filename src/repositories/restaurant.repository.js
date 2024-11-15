@@ -1,4 +1,5 @@
 import { pool, prisma } from "../db.config.js"
+import { ServerError } from "../errors.js";
 
 // 식당 데이터 삽입 (식당 등록) & 식당 ID 반환 
 export const addRestaurant = async(data) => {
@@ -32,29 +33,33 @@ export const addRestaurant = async(data) => {
     // }finally{
     //     conn.release();
     // }
-
-    // 등록하고자 하는 식당의 이름과 위치가 같은 중복 식당이 존재하는지 확인
-    const restaurant = await prisma.restaurant.findFirst({
-        where: {
-            name: data.name, 
-            regionId: data.region
+    try{
+        // 등록하고자 하는 식당의 이름과 위치가 같은 중복 식당이 존재하는지 확인
+        const restaurant = await prisma.restaurant.findFirst({
+            where: {
+                name: data.name, 
+                regionId: data.region
+            }
+        });
+        if (restaurant){ // 중복 식당일 경우
+            return null;
         }
-    });
-    if (restaurant){ // 중복 식당일 경우
-        return null;
+        const created = await prisma.restaurant.create({
+            data: {
+                ...data,
+                region: {
+                    connect: { id: data.region } // region 테이블 관계 연결
+                },
+                ceo: {
+                    connect: { id: data.ceo }  // ceo(member) 테이블 관계 연결
+                }, 
+            }
+        });
+        return created.id;
     }
-    const created = await prisma.restaurant.create({
-        data: {
-            ...data,
-            region: {
-                connect: { id: data.region } // region 테이블 관계 연결
-            },
-            ceo: {
-                connect: { id: data.ceo }  // ceo(member) 테이블 관계 연결
-            }, 
-        }
-    });
-    return created.id;
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
 }
 
 // 식당 ID로 식당 조회
@@ -78,32 +83,37 @@ export const getRestaurant = async(restaurantId) => {
     // }finally{
     //     conn.release();
     // }
-    const restaurant = await prisma.restaurant.findFirstOrThrow({ 
-        select: {
-            id: true,
-            ceo: true,
-            region: true,
-            name: true,
-            introduction: true, 
-            startTime: true,
-            endTime: true,
-            totalRating: true,
-        },
-        where: { id: restaurantId }
-    });
-        const formattedRestaurant = {
-            ...restaurant,
-            id: restaurant.id.toString(),
-            region: {
-                id: restaurant.region.id.toString(),
-                address: restaurant.region.address,
+    try{
+        const restaurant = await prisma.restaurant.findFirstOrThrow({ 
+            select: {
+                id: true,
+                ceo: true,
+                region: true,
+                name: true,
+                introduction: true, 
+                startTime: true,
+                endTime: true,
+                totalRating: true,
             },
-            ceo: {
-                id: restaurant.ceo.id.toString(),
-                name: restaurant.ceo.name.toString()
-            }
-        };
-    return formattedRestaurant;
+            where: { id: restaurantId }
+        });
+            const formattedRestaurant = {
+                ...restaurant,
+                id: restaurant.id.toString(),
+                region: {
+                    id: restaurant.region.id.toString(),
+                    address: restaurant.region.address,
+                },
+                ceo: {
+                    id: restaurant.ceo.id.toString(),
+                    name: restaurant.ceo.name.toString()
+                }
+            };
+        return formattedRestaurant;
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
 }
 
 // 식당 - 지역 반환
@@ -150,73 +160,85 @@ export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
 
 // 특정 식당의 모든 리뷰 조회
 export const getAllRestaurantReviews = async (restaurantId, cursor) => {
-    const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
-    if (restaurant == null){
-        return null;
-    }
-    const reviews = await prisma.review.findMany({ // Prisma ORM을 사용하여 review 테이블에서 여러 개의 레코드를 조회한다. 
-        select: {
-            id: true,
-            member: true,
-            restaurant: true,
-            rating: true,
-            createdAt: true,
-            content: true,
-            status: true
-        },
-        where: { restaurantId: restaurantId, id: { gt: cursor }},
-        orderBy: { id: "asc"},
-        take: 5,
-    })
-    const formattedReviews = reviews.map(review => ({
-        ...review,
-        id: review.id.toString(),
-        member: {
-            id: review.member.id.toString(),
-            name: review.member.name,
-            nickname: review.member.nickname,
-            birth: review.member.birth,
-            gender: review.member.gender,
-            location: review.member.location,
-            phoneNumber: review.member.phoneNumber
-        },
-        restaurant: {
-            id: review.restaurant.id.toString(),
-            name: review.restaurant.name
-        },
-    }));
+    try{
+        // 해당 식당이 존재하는지 확인
+        const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
+        if (restaurant == null){
+            return null;
+        }
+        const reviews = await prisma.review.findMany({ // Prisma ORM을 사용하여 review 테이블에서 여러 개의 레코드를 조회한다. 
+            select: {
+                id: true,
+                member: true,
+                restaurant: true,
+                rating: true,
+                createdAt: true,
+                content: true,
+                status: true
+            },
+            where: { restaurantId: restaurantId, id: { gt: cursor }},
+            orderBy: { id: "asc"},
+            take: 5,
+        })
+        const formattedReviews = reviews.map(review => ({
+            ...review,
+            id: review.id.toString(),
+            member: {
+                id: review.member.id.toString(),
+                name: review.member.name,
+                nickname: review.member.nickname,
+                birth: review.member.birth,
+                gender: review.member.gender,
+                location: review.member.location,
+                phoneNumber: review.member.phoneNumber
+            },
+            restaurant: {
+                id: review.restaurant.id.toString(),
+                name: review.restaurant.name
+            },
+        }));
 
-    return formattedReviews;
+        return formattedReviews;
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
 }
 
 // 특정 식당의 모든 미션 조회
 export const getAllRestaurantMissions = async(restaurantId, cursor) => {
-    const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
-    if (restaurant == null){
-        return null;
-    }
-    const missions = await prisma.mission.findMany({
-        select: {
-            id: true,
-            restaurant: true,
-            points: true,
-            name: true,
-            introduction: true,
-            status: true
-        },
-        where: { restaurantId: restaurantId, id: { gt: cursor }},
-        orderBy: { id: "asc" },
-        take: 5
-    })
-    const formattedMissions = missions.map(mission => ({
-        ...mission,
-        id: mission.id.toString(),
-        points: mission.points.toString(),
-        restaurant: {
-            id: mission.restaurant.id.toString(),
-            name: mission.restaurant.name
-        },
-    }));
+    try{
+        // 해당 식당이 존재하는지 확인
+        const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
+        if (restaurant == null){
+            return null;
+        }
+        const missions = await prisma.mission.findMany({
+            select: {
+                id: true,
+                restaurant: true,
+                points: true,
+                name: true,
+                introduction: true,
+                status: true
+            },
+            where: { restaurantId: restaurantId, id: { gt: cursor }},
+            orderBy: { id: "asc" },
+            take: 5
+        })
+        const formattedMissions = missions.map(mission => ({
+            ...mission,
+            id: mission.id.toString(),
+            points: mission.points.toString(),
+            restaurant: {
+                id: mission.restaurant.id.toString(),
+                name: mission.restaurant.name
+            },
+        }));
 
-    return formattedMissions;
+        return formattedMissions;
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
 }
