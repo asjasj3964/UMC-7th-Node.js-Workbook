@@ -75,7 +75,7 @@ export const memberMissionUpdateOngoing = async(memberId, missionId) => {
     // 해당 회원과 미션이 서로 매핑되지 않았을 경우 에러 처리
     const confirmMemberMission = await getMemberMission(memberId, missionId);
     if (confirmMemberMission === null){
-        throw new CannotHandleError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
+        throw new NotExistError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
     }
     // 해당 회원의 미션 상태가 도전 전이 아닐 경우 에러 처리
     if (confirmMemberMission.status != 0){
@@ -104,7 +104,7 @@ export const memberMissionUpdateCompleted = async(memberId, missionId) => {
     // 해당 회원과 미션이 서로 매핑되지 않았을 경우 에러 처리
     const confirmMemberMission = await getMemberMission(memberId, missionId);
     if (confirmMemberMission === null){
-        throw new CannotHandleError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
+        throw new NotExistError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
     }
     // 해당 회원의 미션 상태가 진행 중이 아닐 경우 에러 처리
     if (confirmMemberMission.status != 1){

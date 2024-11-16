@@ -69,7 +69,7 @@ app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내
 // });
 
 app.post("/restaurants", handleRestaurantRegist);
-// curl.exe -X POST "http://localhost:3001/restaurants" -H "Content-Type: application/json" -d '{\"ceo\": 3,\"region\": 7,\"name\": \"경동삼겹살\",\"introduction\": \"삼겹살 전문\",\"startTime\": \"09:00:00\",\"endTime\": \"18:00:00\"}'
+// curl.exe -X POST "http://localhost:3001/restaurants" -H "Content-Type: application/json" -d '{\"ceo\": 1,\"region\": 2,\"name\": \"종로닭한마리\",\"introduction\": \"닭볶음탕 전문문\",\"startTime\": \"09:00:00\",\"endTime\": \"18:00:00\"}'
 
 app.post("/reviews", handleReviewRegist);
 // curl.exe -X POST "http://localhost:3001/reviews" -H "Content-Type: application/json" -d '{\"member\": 1, \"restaurant\":11, \"rating\": 3.0, \"content\": \"사장님이 친절해요\"}'
@@ -78,7 +78,7 @@ app.post("/missions", handleMissionRegist);
 // curl.exe -X POST "http://localhost:3001/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'
 
 app.patch("/members/:memberId/missions/:missionId", handleMissionUpdateOngoing);
-// curl.exe -X PATCH "http://localhost:3001/members/2/missions/1" 
+// curl.exe -X PATCH "http://localhost:3001/members/1/missions/1" 
 
 app.get("/restaurants/:restaurantId/reviews", handleListRestaurantReviews);
 // curl.exe -X GET "http://localhost:3001/restaurants/1/reviews?cursor=5" 

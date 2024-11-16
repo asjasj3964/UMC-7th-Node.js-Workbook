@@ -20,7 +20,7 @@ export class CannotHandleError extends Error{
 
 // 조회할 수 없는(정의되지 않은) 데이터 에러 처리
 export class NotExistError extends Error{
-    errorCode = "U400" // 404 Not Found, 해당 리소스를 찾을 수 없음
+    errorCode = "U404" // 404 Not Found, 해당 리소스를 찾을 수 없음
     constructor(reason, data){
         super(reason);
         this.reason = reason;
