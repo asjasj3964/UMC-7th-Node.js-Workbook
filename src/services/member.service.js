@@ -1,14 +1,24 @@
 import { responseFromMember } from '../dtos/member.dto.js';
-import { addMember, getMember, getMemberFavoriteFoodKindByMemberId, setFavoriteFoodKind } from '../repositories/member.repository.js'
+import { addMember, getMember, getMemberFavoriteFoodKindByMemberId, getMemberMission, setFavoriteFoodKind } from '../repositories/member.repository.js'
 import { responseFromReviews } from '../dtos/review.dto.js';
 import { getAllMemberReviews, getAllMemberMissions } from '../repositories/member.repository.js';
-import { responseFromMissions, responseFromMission } from '../dtos/mission.dto.js';
-import { updateMissionCompleted } from '../repositories/member.repository.js';
+import { responseFromMemberMissions } from '../dtos/mission.dto.js';
+import { updateMemberMissionCompleted } from '../repositories/member.repository.js';
 import { DuplicateError, CannotHandleError, NotExistError } from '../errors.js';
 import { getMission } from '../repositories/mission.repository.js';
+import { getFoodKind } from '../repositories/foodkind.repository.js';
+import { updateMemberMissionOngoing } from '../repositories/member.repository.js';
+import { responseFromMemberMission } from '../dtos/mission.dto.js';
 
 // 회원 추가 및 선호 음식 매핑, 유효하지 않은 데이터 에러 처리
 export const memberSignUp = async(data) => {
+    // 등록하려는 음식 종류가 존재하지 않을 경우 에러 처리
+    for (const foodKindId of data.favoriteFoodKinds){
+        const foodKind = await getFoodKind(foodKindId)
+        if (foodKind === null){ 
+            throw new NotExistError("존재하지 않는 음식 종류", data); 
+        }
+    }
     const joinMemberId = await addMember({ // 해당 데이터로 회원 생성 후 회원의 ID 반환
         name: data.name,
         nickname: data.nickname,
@@ -18,7 +28,8 @@ export const memberSignUp = async(data) => {
         email: data.email,
         phoneNumber: data.phoneNumber,
     });
-    if (joinMemberId === null){ // 등록하려는 회원의 ID가 null일 경우 에러 처리
+    // 등록하려는 회원의 ID가 null일 경우 에러 처리
+    if (joinMemberId === null){ 
         throw new DuplicateError("중복된 이메일", data); // 동일한 이메일로 여러 계정을 만드는 것을 방지
     }
     for (const favoriteFoodKind of data.favoriteFoodKinds){
@@ -31,29 +42,79 @@ export const memberSignUp = async(data) => {
 
 // 레파지토리 호출 및 DTO로 변환
 export const listMemberReviews = async(memberId, cursor) => {
-    const reviews = await getAllMemberReviews(memberId, cursor);
-    if (reviews === null){
+    // 해당 회원이 존재하지 않을 경우 에러 처리
+    const member = await getMember(memberId);
+    if (member === null){
         throw new NotExistError("존재하지 않는 회원", { memberId: memberId });
     }
+    const reviews = await getAllMemberReviews(memberId, cursor);
     return responseFromReviews(reviews);
 } 
 
 export const listMemberMissions = async(memberId, cursor) => {
-    const missions = await getAllMemberMissions(memberId, cursor);
-    if (missions === null){
+    // 해당 회원이 존재하지 않을 경우 에러 처리
+    const member = await getMember(memberId);
+    if (member === null){
         throw new NotExistError("존재하지 않는 회원", { memberId: memberId });
     }
-    return responseFromMissions(missions);
+    const missions = await getAllMemberMissions(memberId, cursor);
+    return responseFromMemberMissions(missions);
 }
 
-export const missionUpdateCompleted = async(memberId, missionId) => {
-    const mission = await updateMissionCompleted(memberId, missionId);
-    if (mission === null){
-        const cannotCompletedMission = await getMission(missionId);
-        throw new CannotHandleError("완료할 수 없는 미션", cannotCompletedMission); // 유효하지 않은 데이터 에러 처리
+export const memberMissionUpdateOngoing = async(memberId, missionId) => {
+    // 해당 회원이 존재하지 않을 경우 에러 처리
+    const confirmMember = await getMember(memberId);
+    if (confirmMember === null){
+        throw new NotExistError("존재하지 않는 회원", {memberId: memberId});
     }
-    if (mission === -1){
-        throw new NotExistError("존재하지 않는 미션", { memberId: memberId, missionId: missionId }); // 유효하지 않은 데이터 에러 처리
+    // 해당 미션이 존재하지 않을 경우 에러 처리
+    const confirmMission = await getMission(missionId);
+    if (confirmMission === null){
+        throw new NotExistError("존재하지 않는 미션", {missionId: missionId});
     }
-    return responseFromMission(mission);
+    // 해당 회원과 미션이 서로 매핑되지 않았을 경우 에러 처리
+    const confirmMemberMission = await getMemberMission(memberId, missionId);
+    if (confirmMemberMission === null){
+        throw new CannotHandleError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
+    }
+    // 해당 회원의 미션 상태가 도전 전이 아닐 경우 에러 처리
+    if (confirmMemberMission.status != 0){
+        throw new CannotHandleError("도전할 수 없는 미션", confirmMemberMission); 
+    }
+    // 마감기한이 현재 날짜 및 시간보다 이전일 경우 에러 처리
+    const currentDateTime = new Date().toISOString(); // 현재 날짜 및 시간 (YYYY-MM-DDTHH:mm:ss.sssZ 형식)
+    if (currentDateTime > confirmMission.deadline){ 
+        throw new CannotHandleError("이미 종료된 미션", confirmMission); 
+    }
+    const memberMission = await updateMemberMissionOngoing(memberId, missionId);
+    return responseFromMemberMission(memberMission);
+}
+
+export const memberMissionUpdateCompleted = async(memberId, missionId) => {
+    // 해당 회원이 존재하지 않을 경우 에러 처리
+    const confirmMember = await getMember(memberId);
+    if (confirmMember === null){
+        throw new NotExistError("존재하지 않는 회원", {memberId: memberId});
+    }
+    // 해당 미션이 존재하지 않을 경우 에러 처리
+    const confirmMission = await getMission(missionId);
+    if (confirmMission === null){
+        throw new NotExistError("존재하지 않는 미션", {missionId: missionId});
+    }
+    // 해당 회원과 미션이 서로 매핑되지 않았을 경우 에러 처리
+    const confirmMemberMission = await getMemberMission(memberId, missionId);
+    if (confirmMemberMission === null){
+        throw new CannotHandleError("회원에게 할당되지 않은 미션", {memberId: memberId, missionId: missionId}); 
+    }
+    // 해당 회원의 미션 상태가 진행 중이 아닐 경우 에러 처리
+    if (confirmMemberMission.status != 1){
+        throw new CannotHandleError("완료할 수 없는 미션", confirmMemberMission); 
+    }
+    // 마감기한이 현재 날짜 및 시간보다 이전일 경우 에러 처리
+    const currentDateTime = new Date().toISOString(); // 현재 날짜 및 시간 (YYYY-MM-DDTHH:mm:ss.sssZ 형식)
+    if (currentDateTime > confirmMission.deadline){ 
+        throw new CannotHandleError("이미 종료된 미션", confirmMission); 
+    }
+    const memberMission = await updateMemberMissionCompleted(memberId, missionId);
+    return responseFromMemberMission(memberMission);
 }

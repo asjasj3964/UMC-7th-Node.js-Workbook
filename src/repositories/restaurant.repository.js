@@ -1,38 +1,8 @@
-import { pool, prisma } from "../db.config.js"
+import { prisma } from "../db.config.js"
 import { ServerError } from "../errors.js";
 
 // 식당 데이터 삽입 (식당 등록) & 식당 ID 반환 
 export const addRestaurant = async(data) => {
-    // const conn = await pool.getConnection();
-    // try{
-    //     // 해당 위치의 식당(중복된 식당)의 사용자가 있는지 확인
-    //     const [confirm] = await pool.query(
-    //         `SELECT EXISTS(SELECT 1 FROM restaurant WHERE region_id = ? and restaurant_name = ?) as isExistRestaurant`, 
-    //         [data.region, data.name] 
-    //     );
-    //     if (confirm[0].isExistRestaurant) {
-    //         return null;
-    //     }
-    //     const [result] = await pool.query(
-    //         `INSERT INTO restaurant (ceo_id, region_id, restaurant_name, introduction, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?);`,
-    //         [
-    //             data.ceo,
-    //             data.region,
-    //             data.name,
-    //             data.introduction,
-    //             data.startTime,
-    //             data.endTime,
-    //         ]
-    //     );
-    //     return result.insertId;
-    // }catch(err){
-    //     throw new Error(`
-    //         🚫 오류 발생 🚫 
-    //         요청 파라미터 확인 바람 (${err})
-    //     `);
-    // }finally{
-    //     conn.release();
-    // }
     try{
         // 등록하고자 하는 식당의 이름과 위치가 같은 중복 식당이 존재하는지 확인
         const restaurant = await prisma.restaurant.findFirst({
@@ -64,27 +34,8 @@ export const addRestaurant = async(data) => {
 
 // 식당 ID로 식당 조회
 export const getRestaurant = async(restaurantId) => {
-    // const conn = await pool.getConnection();
-    // try{
-    //     const [restaurant] = await pool.query(
-    //         `SELECT * FROM restaurant WHERE id = ?`,
-    //         restaurantId
-    //     )
-    //     console.log(restaurant);
-    //     if (restaurant.length == 0){
-    //         return null;
-    //     }
-    //     return restaurant;
-    // }catch (err){
-    //     throw new Error(`
-    //         🚫 오류 발생 🚫 
-    //         요청 파라미터 확인 바람 (${err})
-    //     `);
-    // }finally{
-    //     conn.release();
-    // }
     try{
-        const restaurant = await prisma.restaurant.findFirstOrThrow({ 
+        const restaurant = await prisma.restaurant.findFirst({ 
             select: {
                 id: true,
                 ceo: true,
@@ -97,18 +48,22 @@ export const getRestaurant = async(restaurantId) => {
             },
             where: { id: restaurantId }
         });
-            const formattedRestaurant = {
-                ...restaurant,
-                id: restaurant.id.toString(),
-                region: {
-                    id: restaurant.region.id.toString(),
-                    address: restaurant.region.address,
-                },
-                ceo: {
-                    id: restaurant.ceo.id.toString(),
-                    name: restaurant.ceo.name.toString()
-                }
-            };
+        // 해당 식당이 존재하지 않을 경우
+        if (restaurant == null){
+            return null;
+        }
+        const formattedRestaurant = {
+            ...restaurant,
+            id: restaurant.id.toString(),
+            region: {
+                ...restaurant.region,
+                id: restaurant.region.id.toString(),
+            },
+            ceo: {
+                ...restaurant.ceo,
+                id: restaurant.ceo.id.toString(),
+            }
+        };
         return formattedRestaurant;
     }
     catch(err){
@@ -116,56 +71,42 @@ export const getRestaurant = async(restaurantId) => {
     }
 }
 
-// 식당 - 지역 반환
-export const getrestaurantRegionByRestaurantId = async (restaurantId) => {
-    const conn = await pool.getConnection();
+export const setRestaurantFoodKind = async(restaurantId, foodKindId) => {
     try{
-        const [region] = await pool.query(`
-            SELECT rest.id, rest.region_id, re.address
-            FROM restaurant rest JOIN region re ON rest.region_id = re.id
-            WHERE rest.id = ?`,
-            restaurantId
-        );
-        return region;
-    }catch(err){
-        throw new Error(`
-            🚫 오류 발생 🚫 
-            요청 파라미터 확인 바람 (${err})
-        `);
-    }finally{
-        conn.release();
+        await prisma.foodKindRestaurant.create({
+            data: {
+                restaurantId: restaurantId,
+                foodKindId, foodKindId,
+            }
+        });
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
     }
 }
 
-// CEO ID로 식당의 CEO의 이름 알아내기
-export const getrestaurantCeoByCeoId = async (restaurantCeoId) => {
-    const conn = await pool.getConnection();
+export const getRestaurantFoodKindByRestaurantId = async(restaurantId) => {
     try{
-        const [restaurantCeo] = await pool.query(`
-            SELECT rest.id, rest.ceo_id, mem.member_name
-            FROM restaurant rest JOIN member mem ON rest.ceo_id = mem.id
-            WHERE rest.ceo_id = ?`,
-            restaurantCeoId
-        );
-        return restaurantCeo;
-    }catch(err){
-        throw new Error(`
-            🚫 오류 발생 🚫 
-            요청 파라미터 확인 바람 (${err})
-        `);
-    }finally{
-        conn.release();
+        const foodkinds = await prisma.foodKindRestaurant.findMany({ // 여러 레코드 조회, 조건에 맞는 모든 레코드를 배열 형태로 반환
+            select: { // 반환할 필드 명시
+                id: true,
+                restaurantId: true,
+                foodKindId: true,
+                foodKind: true, // 참조하는 foodKind 테이블
+            },
+            where: { restaurantId: restaurantId },
+            orderBy: {foodKindId: "asc"}, // foodKindId 기준 오름차순 정렬
+        });
+        return foodkinds;
     }
-}
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
+} 
 
 // 특정 식당의 모든 리뷰 조회
 export const getAllRestaurantReviews = async (restaurantId, cursor) => {
     try{
-        // 해당 식당이 존재하는지 확인
-        const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
-        if (restaurant == null){
-            return null;
-        }
         const reviews = await prisma.review.findMany({ // Prisma ORM을 사용하여 review 테이블에서 여러 개의 레코드를 조회한다. 
             select: {
                 id: true,
@@ -184,17 +125,14 @@ export const getAllRestaurantReviews = async (restaurantId, cursor) => {
             ...review,
             id: review.id.toString(),
             member: {
+                ...review.member,
                 id: review.member.id.toString(),
-                name: review.member.name,
-                nickname: review.member.nickname,
-                birth: review.member.birth,
-                gender: review.member.gender,
-                location: review.member.location,
-                phoneNumber: review.member.phoneNumber
             },
             restaurant: {
+                ...review.restaurant,
                 id: review.restaurant.id.toString(),
-                name: review.restaurant.name
+                ceoId: review.restaurant.ceoId.toString(),
+                regionId: review.restaurant.regionId.toString(),
             },
         }));
 
@@ -208,11 +146,6 @@ export const getAllRestaurantReviews = async (restaurantId, cursor) => {
 // 특정 식당의 모든 미션 조회
 export const getAllRestaurantMissions = async(restaurantId, cursor) => {
     try{
-        // 해당 식당이 존재하는지 확인
-        const restaurant = await prisma.restaurant.findFirst({ where: {id: restaurantId }});
-        if (restaurant == null){
-            return null;
-        }
         const missions = await prisma.mission.findMany({
             select: {
                 id: true,
@@ -231,8 +164,10 @@ export const getAllRestaurantMissions = async(restaurantId, cursor) => {
             id: mission.id.toString(),
             points: mission.points.toString(),
             restaurant: {
+                ...mission.restaurant,
                 id: mission.restaurant.id.toString(),
-                name: mission.restaurant.name
+                ceoId: mission.restaurant.ceoId.toString(),
+                regionId: mission.restaurant.regionId.toString(),
             },
         }));
 

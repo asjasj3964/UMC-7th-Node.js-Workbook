@@ -130,7 +130,7 @@ model MemberMission{
   missionId BigInt @map("mission_id")
   createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
   updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
-  status Int @default(1)  
+  status Int @default(0)  
 
   @@unique([memberId, missionId], name: "memberId_missionId_unique")
   @@index([memberId], map: "member_id")

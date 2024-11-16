@@ -11,7 +11,15 @@ export const bodyToReview = (body) => {
 // review 목록 응답 DTO
 export const responseFromReviews = (reviews) => {
     return {
-        data: reviews,
+        data: reviews.map (review =>({
+            id: review.id,
+            restaurant: review.restaurant.name,
+            writer: review.member.name,
+            content: review.content,
+            rating: review.rating,
+            status: review.status,
+            createdAt: review.createdAt,
+        })),
         pagination: {
             cursor: reviews.length ? reviews[reviews.length - 1].id: null,
         },
@@ -19,18 +27,14 @@ export const responseFromReviews = (reviews) => {
 };
 
 // review 응답 DTO
-// export const responseFromReview = ({ review, restaurant, reviewWriter }) => {
-//     return {
-//         member: reviewWriter[0].member_name,
-//         restaurant: restaurant[0].restaurant_name,
-//         rating: review[0].rating,
-//         content: review[0].content
-//     };
-// };
-
-// review 응답 DTO
 export const responseFromReview = (review) => {
     return {
-        data: review,
+        id: review.id,
+        member: review.member.name,
+        restaurant: review.restaurant.name,
+        rating: review.rating,
+        content: review.content,
+        createdAt: review.createdAt,
+        status: review.status
     }
 }

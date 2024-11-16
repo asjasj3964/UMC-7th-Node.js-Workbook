@@ -5,26 +5,23 @@ export const bodyToRestaurant = (body) => {
         region: body.region,
         name: body.name,
         introduction: body.introduction,
+        foodKinds: body.foodKinds,
         startTime: body.startTime,
         endTime: body.endTime,
     };
 };
 
 // restaurant 응답 DTO
-// export const responseFromRestaurant = ({ restaurant, region, restaurantCeo }) => {
-//     return {
-//         ceo: restaurantCeo[0].member_name,
-//         region: region[0].address,
-//         name: restaurant[0].restaurant_name,
-//         introduction: restaurant[0].introduction,
-//         startTime: restaurant[0].start_time,
-//         endTime: restaurant[0].end_time,
-//     } 
-// }
-
-// restaurant 응답 DTO
-export const responseFromRestaurant = (restaurant) => {
+export const responseFromRestaurant = ({restaurant, foodKinds}) => {
+    console.log(restaurant);
     return {
-        data: restaurant
+        id: restaurant.id,
+        ceo: restaurant.ceo.name,
+        region: restaurant.region.name,
+        name: restaurant.name,
+        introduction: restaurant.introduction,
+        startTime: restaurant.startTime,
+        endTime: restaurant.endTime,    
+        foodKinds: foodKinds.map(foodKind => foodKind.foodKind.kind)
     }
 }

@@ -1,11 +1,31 @@
-import { addRestaurant, getRestaurant, getrestaurantCeoByCeoId, getrestaurantRegionByRestaurantId } from "../repositories/restaurant.repository.js";
+import { addRestaurant, getRestaurant, getRestaurantFoodKindByRestaurantId, setRestaurantFoodKind } from "../repositories/restaurant.repository.js";
 import { responseFromReviews } from '../dtos/review.dto.js';
 import { getAllRestaurantReviews, getAllRestaurantMissions } from '../repositories/restaurant.repository.js';
 import { responseFromMissions } from '../dtos/mission.dto.js';
 import { responseFromRestaurant } from '../dtos/restaurant.dto.js';
 import { DuplicateError, NotExistError } from "../errors.js";
+import { getRegion } from "../repositories/region.repository.js";
+import { getMember } from "../repositories/member.repository.js";
+import { getFoodKind } from "../repositories/foodkind.repository.js";
 
 export const restaurantRegist = async(data) => {
+    // 해당 CEO가 등록되어있지 않을 경우 에러 처리
+    const ceo = await getMember(data.ceo);
+    if (ceo === null){
+        throw new NotExistError("존재하지 않는 CEO", data); // 동일한 식당을 등록하는 것을 방지
+    }
+    // 해당 위치가 유효하지 않을 경우 에러 처리
+    const region = await getRegion(data.region);
+    if (region === null){
+        throw new NotExistError("유효하지 않은 위치", data);
+    }
+    // 등록하려는 음식 종류가 존재하지 않을 경우 에러 처리
+    for (const foodKind of data.foodKinds){
+        const confirmFoodKind = await getFoodKind(foodKind)
+        if (confirmFoodKind === null){ 
+            throw new NotExistError("존재하지 않는 음식 종류", data); 
+        }
+    }
     const registRestaurantId = await addRestaurant({
         ceo: data.ceo,
         region: data.region,
@@ -14,28 +34,34 @@ export const restaurantRegist = async(data) => {
         startTime: data.startTime,
         endTime: data.endTime
     })
+    // 중복된 식당(동일한 위치, 이름의 식당)일 경우 에러 처리
     if (registRestaurantId === null){
         throw new DuplicateError("중복된 식당", data); // 동일한 식당을 등록하는 것을 방지
     }
+    for (const foodKind of data.foodKinds){
+        await setRestaurantFoodKind(registRestaurantId, foodKind); // 해당 식당을 포함하는 음식 종류들과 매핑
+    }
     const restaurant = await getRestaurant(registRestaurantId); 
-    return responseFromRestaurant(restaurant);
-    // const region = await getrestaurantRegionByRestaurantId(registRestaurantId); 
-    // const restaurantCeo = await getrestaurantCeoByCeoId(data.ceo);
-    // return responseFromRestaurant({ restaurant, region, restaurantCeo }); 
+    const foodKinds = await getRestaurantFoodKindByRestaurantId(registRestaurantId);
+    return responseFromRestaurant({restaurant, foodKinds});
 }
 
 export const listRestaurantReviews = async(restaurantId, cursor) => {
-    const reviews = await getAllRestaurantReviews(restaurantId, cursor);
-    if (reviews === null){
-        throw new NotExistError("존재하지 않는 식당", {restaurantId: restaurantId});
+    // 해당 식당이 존재하지 않을 경우 에러 처리
+    const restaurant = await getRestaurant(restaurantId);
+    if (restaurant === null){
+        throw new NotExistError("존재하지 않은 식당", {restaurantId: restaurantId}); 
     }
+    const reviews = await getAllRestaurantReviews(restaurantId, cursor);
     return responseFromReviews(reviews);
 }
 
 export const listRestaurantMissions = async(restaurantId, cursor) => {
-    const missions = await getAllRestaurantMissions(restaurantId, cursor);
-    if (missions === null){
-        throw new NotExistError("존재하지 않는 식당", {restaurantId: restaurantId});
+    // 해당 식당이 존재하지 않을 경우 에러 처리
+    const restaurant = await getRestaurant(restaurantId);
+    if (restaurant === null){
+        throw new NotExistError("존재하지 않은 식당", {restaurantId: restaurantId}); 
     }
+    const missions = await getAllRestaurantMissions(restaurantId, cursor);
     return responseFromMissions(missions);
 }

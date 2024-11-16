@@ -2,7 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import { bodyToMember } from "../dtos/member.dto.js";
 import { memberSignUp } from "../services/member.service.js"
 import { listMemberReviews, listMemberMissions } from "../services/member.service.js";
-import { missionUpdateCompleted } from "../services/member.service.js";
+import { memberMissionUpdateCompleted } from "../services/member.service.js";
+import { memberMissionUpdateOngoing } from "../services/member.service.js";
 
 // 회원 등록 핸들러
 export const handleMemberSignUp = async(req, res, next) => {
@@ -18,6 +19,7 @@ export const handleListMemberReviews = async(req, res, next) => {
     const reviews = await listMemberReviews(
         parseInt(req.params.memberId),
         typeof req.query.cursor === "string"? parseInt(req.query.cursor) : 0
+        // cursor(Query Parameter)가 문자열이라면 parseInt로 정수로 변환, 그렇지 않으면 기본값 0
     )
     res.status(StatusCodes.OK).success(reviews);
 }
@@ -31,9 +33,19 @@ export const handleListMemberMission = async(req, res, next) => {
     res.status(StatusCodes.OK).success(missions);
 }
 
-// 특정 회원의 특정 미션 상태 업데이트 핸들러
+// 특정 회원의 특정 미션 상태 업데이트(진행 X -> 진행 중) 핸들러
+export const handleMissionUpdateOngoing = async(req, res, next) => {
+    const updateMission = await memberMissionUpdateOngoing(
+        parseInt(req.params.memberId), 
+        parseInt(req.params.missionId) 
+        // URL 경로에서 memberId, missionId(Path Parameter)를 가져온다.
+    )
+    res.status(StatusCodes.OK).success(updateMission);
+}
+
+// 특정 회원의 특정 미션 상태 업데이트(진행 중 -> 진행 완료) 핸들러
 export const handleMissionUpdateCompleted = async(req, res, next) => {
-    const missions = await missionUpdateCompleted(
+    const missions = await memberMissionUpdateCompleted(
         parseInt(req.params.memberId),
         parseInt(req.params.missionId),
     )

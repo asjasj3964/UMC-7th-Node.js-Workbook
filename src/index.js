@@ -3,10 +3,10 @@
 import express from 'express'; // ES Module
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { handleMemberSignUp, handleListMemberReviews, handleListMemberMission } from "./controllers/member.controller.js";
+import { handleMemberSignUp, handleListMemberReviews, handleListMemberMission, handleMissionUpdateOngoing } from "./controllers/member.controller.js";
 import { handleRestaurantRegist, handleListRestaurantReviews, handleListRestaurantMissions } from './controllers/restaurant.controller.js';
 import { handleReviewRegist } from './controllers/review.controller.js';
-import { handleMissionRegist, handleMissionUpdateStatus } from './controllers/mission.controller.js';
+import { handleMissionRegist } from './controllers/mission.controller.js';
 import { handleMissionUpdateCompleted } from './controllers/member.controller.js';
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
@@ -77,8 +77,8 @@ app.post("/reviews", handleReviewRegist);
 app.post("/missions", handleMissionRegist);
 // curl.exe -X POST "http://localhost:3001/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'
 
-app.patch("/missions/:id", handleMissionUpdateStatus);
-// curl.exe -X PATCH "http://localhost:3001/missions/1" 
+app.patch("/members/:memberId/missions/:missionId", handleMissionUpdateOngoing);
+// curl.exe -X PATCH "http://localhost:3001/members/2/missions/1" 
 
 app.get("/restaurants/:restaurantId/reviews", handleListRestaurantReviews);
 // curl.exe -X GET "http://localhost:3001/restaurants/1/reviews?cursor=5" 

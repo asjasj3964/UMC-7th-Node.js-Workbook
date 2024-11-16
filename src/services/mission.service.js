@@ -1,8 +1,20 @@
-import { addMission, getMission, getRestaurantByMissionId, updateMissionStatus } from "../repositories/mission.repository.js";
+import { addMission, getMission, setMemberMission } from "../repositories/mission.repository.js";
 import { responseFromMission } from "../dtos/mission.dto.js";
 import { NotExistError, CannotHandleError, DuplicateError } from "../errors.js";
+import { getMember } from "../repositories/member.repository.js";
+import { getRestaurant } from "../repositories/restaurant.repository.js";
 
 export const missionRegist = async(data) => {
+    // 해당 회원이 존재하지 않을 경우 에러 처리
+    const confirmMember = await getMember(data.member);
+    if (confirmMember === null){
+        throw new NotExistError("존재하지 않는 회원", data);
+    }
+    // 해당 식당이 존재하지 않을 경우 에러 처리
+    const confirmRestaurant = await getRestaurant(data.restaurant);
+    if (confirmRestaurant === null){
+        throw new NotExistError("존재하지 않은 식당", data); 
+    }
     const registMissionId = await addMission({
         restaurant: data.restaurant,
         name: data.name,
@@ -10,30 +22,16 @@ export const missionRegist = async(data) => {
         deadline: data.deadline,
         points: data.points
     })
-
-    console.log(registMissionId);
-    if (registMissionId === null){
-        throw new NotExistError("존재하지 않은 식당", { restaurantId: data.restaurant}); // 동일한 식당을 등록하는 것을 방지
+    // 미션의 마감기한을 과거로 설정하였을 경우 에러 처리
+    if (registMissionId === -2){
+        throw new CannotHandleError("마감기한을 과거로 설정하였음", data); 
     }
+    // 중복된 미션(동일한 식당, 미션명, 미션 설명, 마감기한)일 경우 에러 처리
     if (registMissionId === -1){
-        throw new DuplicateError("중복된 미션", data); // 동일한 식당을 등록하는 것을 방지
+        throw new DuplicateError("중복된 미션", data); 
     }
+    await setMemberMission(registMissionId, data.member); // 회원과 미션을 매핑
     const mission = await getMission(registMissionId);
-    //const restaurant = await getRestaurantByMissionId(registMissionId);
-    // return responseFromMission({ mission, restaurant });
-    return responseFromMission(mission);
+    const member = await getMember(data.member);
+    return responseFromMission({mission, member});
 }
-
-export const missionUpdateStatus = async(missionId) => {
-    const mission = await updateMissionStatus(missionId);
-    if (mission === null){
-        const cannotChallengeMission = await getMission(missionId);
-        throw new CannotHandleError("도전할 수 없는 미션", cannotChallengeMission); 
-    }
-    if (mission === -1){
-        throw new NotExistError("존재하지 않는 미션", { missionId: missionId }); 
-    }
-    // const restaurant = await getRestaurantByMissionId(missionId);
-    return responseFromMission(mission);
-}
- 

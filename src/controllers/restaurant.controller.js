@@ -8,9 +8,7 @@ export const handleRestaurantRegist = async(req, res, next) => {
     console.log("식당 등록");
     console.log("body: ", req.body);
     const restaurant = await restaurantRegist(bodyToRestaurant(req.body));
-    // res.status(StatusCodes.OK).json({ result: restaurant });
     res.status(StatusCodes.OK).success(restaurant);
-
 }
 
 // 특정 식당 모든 리뷰 조회 핸들러
