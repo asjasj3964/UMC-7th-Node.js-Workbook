@@ -1,7 +1,7 @@
 // mission 요청 DTO
 export const bodyToMission = (body) => { 
     return {
-        member: body.member,
+        //member: body.member,
         restaurant: body.restaurant,
         name: body.name,
         introduction: body.introduction,
@@ -32,11 +32,9 @@ export const responseFromMemberMissions = (memberMissions) => {
 }
 
 // mission 응답 DTO
-export const responseFromMission = ({mission, member}) => {
-    console.log(member.name);
+export const responseFromMission = (mission) => {
     return {
         id: mission.id,
-        member: member.name,
         restaurant: mission.restaurant.name,
         name: mission.name,
         introduction: mission.introduction,
@@ -62,19 +60,5 @@ export const responseFromMissions = (missions) => {
             cursor: missions.length ? missions[missions.length - 1].id : null 
             // 다음 페이지를 요청할 때 필요한 위치 표시, 배열이 비어있을 경우 null 처리
         }
-    }
-}
-
-// memberMission 응답 DTO
-export const responseFromMemberMission = (data) => {
-    return {
-        id: data.id,
-        member: data.member.name,
-        restaurant: data.mission.restaurant.name,
-        name: data.mission.name,
-        introduction: data.mission.introduction,
-        deadline: data.mission.deadline,
-        points: data.mission.points,
-        status: data.status
     }
 }

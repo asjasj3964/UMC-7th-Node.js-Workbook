@@ -73,19 +73,3 @@ export const getMission = async(missionId) => {
         throw new ServerError(`서버 내부 오류: ${err.stack}`);
     }
 }
-
-// 미션 - 회원 매핑
-export const setMemberMission = async(missionId, memberId) => {
-    try{
-        // 회원 ID로 조회했을 때 해당 회원이 존재하는지 확인
-        await prisma.memberMission.create({
-            data:{ // 새 레코드의 필드와 값을 지정한다. 
-                memberId: memberId,
-                missionId: missionId
-            },
-        });
-    }
-    catch(err){
-        throw new ServerError(`서버 내부 오류: ${err.stack}`);
-    }
-};

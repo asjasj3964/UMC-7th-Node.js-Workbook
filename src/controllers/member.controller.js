@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { bodyToMember } from "../dtos/member.dto.js";
+import { bodyToMember, bodyToMemberMission } from "../dtos/member.dto.js";
 import { memberSignUp } from "../services/member.service.js"
 import { listMemberReviews, listMemberMissions } from "../services/member.service.js";
 import { memberMissionUpdateCompleted } from "../services/member.service.js";
-import { memberMissionUpdateOngoing } from "../services/member.service.js";
+import { memberMissionRegist } from "../services/member.service.js";
 
 // 회원 등록 핸들러
 export const handleMemberSignUp = async(req, res, next) => {
@@ -33,14 +33,12 @@ export const handleListMemberMission = async(req, res, next) => {
     res.status(StatusCodes.OK).success(missions);
 }
 
-// 특정 회원의 특정 미션 상태 업데이트(진행 X -> 진행 중) 핸들러
-export const handleMissionUpdateOngoing = async(req, res, next) => {
-    const updateMission = await memberMissionUpdateOngoing(
-        parseInt(req.params.memberId), 
-        parseInt(req.params.missionId) 
-        // URL 경로에서 memberId, missionId(Path Parameter)를 가져온다.
-    )
-    res.status(StatusCodes.OK).success(updateMission);
+// 특정 회원의 특정 미션(진행 중) 등록 핸들러
+export const handleMemberMissionRegist = async(req, res, next) => {
+    console.log("특정 회원에게 미션 할당");
+    console.log("body: ", req.body); // 값이 잘 들어오는지 테스트
+    const memberMission = await memberMissionRegist(bodyToMemberMission(req.body)); // 요청 데이터를 DTO로 변환 (member 객체 생성)
+    res.status(StatusCodes.OK).success(memberMission); // 성공 공통 응답 전달
 }
 
 // 특정 회원의 특정 미션 상태 업데이트(진행 중 -> 진행 완료) 핸들러

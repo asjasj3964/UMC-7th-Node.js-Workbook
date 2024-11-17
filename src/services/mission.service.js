@@ -1,15 +1,9 @@
-import { addMission, getMission, setMemberMission } from "../repositories/mission.repository.js";
+import { addMission, getMission } from "../repositories/mission.repository.js";
 import { responseFromMission } from "../dtos/mission.dto.js";
 import { NotExistError, CannotHandleError, DuplicateError } from "../errors.js";
-import { getMember } from "../repositories/member.repository.js";
 import { getRestaurant } from "../repositories/restaurant.repository.js";
 
 export const missionRegist = async(data) => {
-    // 해당 회원이 존재하지 않을 경우 에러 처리
-    const confirmMember = await getMember(data.member);
-    if (confirmMember === null){
-        throw new NotExistError("존재하지 않는 회원", data);
-    }
     // 해당 식당이 존재하지 않을 경우 에러 처리
     const confirmRestaurant = await getRestaurant(data.restaurant);
     if (confirmRestaurant === null){
@@ -30,8 +24,6 @@ export const missionRegist = async(data) => {
     if (registMissionId === -1){
         throw new DuplicateError("중복된 미션", data); 
     }
-    await setMemberMission(registMissionId, data.member); // 회원과 미션을 매핑
     const mission = await getMission(registMissionId);
-    const member = await getMember(data.member);
-    return responseFromMission({mission, member});
+    return responseFromMission(mission);
 }

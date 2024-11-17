@@ -30,7 +30,7 @@ export class NotExistError extends Error{
 
 // 서버 내부의 에러 처리
 export class ServerError extends Error{
-    errorCode = "U500" // Internal Server Error, 서버 내부에서 예상치 못한 오류 발생
+    errorCode = "U500" // Internal Server Error, 서버 내부에서 예상치 못한 오류 발생 // 사용자 정의????
     constructor(reason){
         super(reason);
         this.reason = reason;
