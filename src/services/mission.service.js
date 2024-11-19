@@ -5,12 +5,12 @@ import { getRestaurant } from "../repositories/restaurant.repository.js";
 
 export const missionRegist = async(data) => {
     // 해당 식당이 존재하지 않을 경우 에러 처리
-    const confirmRestaurant = await getRestaurant(data.restaurant);
+    const confirmRestaurant = await getRestaurant(data.restaurantId);
     if (confirmRestaurant === null){
         throw new NotExistError("존재하지 않은 식당", data); 
     }
     const registMissionId = await addMission({
-        restaurant: data.restaurant,
+        restaurant: data.restaurantId,
         name: data.name,
         introduction: data.introduction,
         deadline: data.deadline,

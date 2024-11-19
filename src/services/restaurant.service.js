@@ -10,12 +10,12 @@ import { getFoodKind } from "../repositories/foodkind.repository.js";
 
 export const restaurantRegist = async(data) => {
     // 해당 CEO가 등록되어있지 않을 경우 에러 처리
-    const ceo = await getMember(data.ceo);
+    const ceo = await getMember(data.ceoId);
     if (ceo === null){
         throw new NotExistError("존재하지 않는 CEO", data); // 동일한 식당을 등록하는 것을 방지
     }
     // 해당 위치가 유효하지 않을 경우 에러 처리
-    const region = await getRegion(data.region);
+    const region = await getRegion(data.regionId);
     if (region === null){
         throw new NotExistError("유효하지 않은 위치", data);
     }
@@ -27,8 +27,8 @@ export const restaurantRegist = async(data) => {
         }
     }
     const registRestaurantId = await addRestaurant({
-        ceo: data.ceo,
-        region: data.region,
+        ceo: data.ceoId,
+        region: data.regionId,
         name: data.name,
         introduction: data.introduction,
         startTime: data.startTime,

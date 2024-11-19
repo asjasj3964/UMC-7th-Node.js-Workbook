@@ -1,8 +1,8 @@
 // review 요청 DTO
 export const bodyToReview = (body) => {
     return {
-        member: body.member,
-        restaurant: body.restaurant,
+        memberId: body.memberId,
+        restaurantId: body.restaurantId,
         rating: body.rating,
         content: body.content
     };

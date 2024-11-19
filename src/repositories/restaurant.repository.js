@@ -162,7 +162,7 @@ export const getAllRestaurantMissions = async(restaurantId, cursor) => {
         const formattedMissions = missions.map(mission => ({
             ...mission,
             id: mission.id.toString(),
-            points: mission.points.toString(),
+            points: mission.points,
             restaurant: {
                 ...mission.restaurant,
                 id: mission.restaurant.id.toString(),

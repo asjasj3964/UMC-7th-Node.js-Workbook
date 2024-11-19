@@ -34,7 +34,7 @@ CREATE TABLE `mission` (
     `restaurant_id` BIGINT NOT NULL,
     `mission_name` VARCHAR(30) NOT NULL,
     `introduction` VARCHAR(500) NOT NULL,
-    `deadline` DATETIME(3) NOT NULL,
+    `deadline` DATETIME NOT NULL,
     `points` BIGINT NOT NULL,
     `created_at` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),

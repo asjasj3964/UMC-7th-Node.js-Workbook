@@ -65,7 +65,7 @@ export const getMission = async(missionId) => {
                 ceoId: mission.restaurant.ceoId.toString(),
                 regionId: mission.restaurant.regionId.toString(),
             },
-            points: mission.points.toString(),
+            points: mission.points,
         };
         return formattedMission
     }
