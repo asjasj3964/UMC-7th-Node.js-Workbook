@@ -56,6 +56,15 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
     #swagger.tags = ['participated-mission-controller']
     #swagger.summary = '미션 상태 업데이트 API';
     #swagger.description = '미션 상태 업데이트 API입니다.';
+    #swagger.parameters['memberId'] = {
+        in: 'path',
+        required: true,
+        description: "참여한 미션의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    };
     #swagger.responses[200] = {
         description: "미션 상태 업데이트 성공 응답",
         content: {

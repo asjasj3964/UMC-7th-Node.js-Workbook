@@ -87,8 +87,9 @@ app.get("/openapi.json", async(req, res, next) => {
                   type: "object",
                   properties: {
                     cursor: {
-                      type: "number",
-                      nullable: true
+                      type: "string",
+                      nullable: true,
+                      example: "0"
                     }
                   }
                 }

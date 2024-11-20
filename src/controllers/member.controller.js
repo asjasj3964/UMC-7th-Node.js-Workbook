@@ -70,6 +70,23 @@ export const handleListMemberReviews = async(req, res, next) => {
     #swagger.tags = ['member-controller']
     #swagger.summary = "회원의 리뷰 목록 조회 API";
     #swagger.description = '회원의 리뷰 목록 조회 API입니다.'
+    #swagger.parameters['memberId'] = {
+        in: 'path',
+        required: true,
+        description: "회원의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
+    #swagger.parameters['cursor'] = {
+        in: 'query',
+        description: "페이징 커서 값 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
     #swagger.responses[200] = {
         description: "회원의 리뷰 목록 조회 성공 응답",
         content: {
@@ -106,6 +123,23 @@ export const handleListMemberMission = async(req, res, next) => {
     #swagger.tags = ['member-controller']
     #swagger.summary = "회원의 진행 중인 미션 목록 조회 API";
     #swagger.description = '회원의 진행 중인 미션 목록 조회 API입니다.'
+    #swagger.parameters['memberId'] = {
+        in: 'path',
+        required: true,
+        description: "회원의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
+    #swagger.parameters['cursor'] = {
+        in: 'query',
+        description: "페이징 커서 값 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
     #swagger.responses[200] = {
         description: "회원의 진행 중인 미션 목록 조회 성공 응답",
         content: {
@@ -128,8 +162,9 @@ export const handleListMemberMission = async(req, res, next) => {
                                     type: "object",
                                     properties: {
                                         cursor: {
-                                            type: "number",
-                                            nullable: true
+                                            type: "string",
+                                            nullable: true,
+                                            example: "0"
                                         }
                                     }
                                 }     

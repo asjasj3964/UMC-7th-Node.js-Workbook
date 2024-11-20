@@ -8,6 +8,23 @@ export const handleMissionRegist = async(req, res, next) => {
     #swagger.tags = ['mission-controller']
     #swagger.summary = '미션 등록 API';
     #swagger.description = '미션 등록 API입니다.'
+    #swagger.parameters['memberId'] = {
+        in: 'path',
+        required: true,
+        description: "미션의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
+    #swagger.parameters['cursor'] = {
+        in: 'query',
+        description: "페이징 커서 값 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
     #swagger.requestBody = {
         required: true,
         content: {

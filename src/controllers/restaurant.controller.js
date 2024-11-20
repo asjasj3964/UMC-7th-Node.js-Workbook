@@ -47,7 +47,7 @@ export const handleRestaurantRegist = async(req, res, next) => {
                                 "introduction": { type: "string" },
                                 "foodKinds": { type: "array", items: { type: "string" } },
                                 "startTime": { type: "string", example: "09:00:00" },
-                                "endTime": { type: "string, example: "21:00:00"" }
+                                "endTime": { type: "string", example: "21:00:00" }
                             }
                         }  
                     }
@@ -79,6 +79,23 @@ export const handleListRestaurantReviews = async(req, res, next) => {
     #swagger.tags = ['restaurant-controller']
     #swagger.summary = "식당의 리뷰 목록 조회 API";
     #swagger.description = '식당의 리뷰 목록 조회 API입니다.'
+    #swagger.parameters['restaurantId'] = {
+        in: 'path',
+        required: true,
+        description: "식당의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
+    #swagger.parameters['cursor'] = {
+        in: 'query',
+        description: "페이징 커서 값 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
     #swagger.responses[200] = {
         description: "식당의 리뷰 목록 조회 성공 응답",
         content: {
@@ -115,6 +132,23 @@ export const handleListRestaurantMissions = async(req, res, next) => {
     #swagger.tags = ['restaurant-controller']
     #swagger.summary = "식당의 미션 목록 조회 API";
     #swagger.description = '식당의 미션 목록 조회 API입니다.'
+    #swagger.parameters['restaurantId'] = {
+        in: 'path',
+        required: true,
+        description: "식당의 ID 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
+    #swagger.parameters['cursor'] = {
+        in: 'query',
+        description: "페이징 커서 값 입력",
+        '@schema': {
+            type: "integer",
+            format: "int64"
+        }
+    }
     #swagger.responses[200] = {
         description: "식당의 미션 목록 조회 성공 응답",
         content: {
@@ -145,8 +179,9 @@ export const handleListRestaurantMissions = async(req, res, next) => {
                                     type: "object",
                                     properties: {
                                         cursor: {
-                                            type: "number",
-                                            nullable: true
+                                            type: "string",
+                                            nullable: true,
+                                            example: "0"
                                         }
                                     }
                                 }
