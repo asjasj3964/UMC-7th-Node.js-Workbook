@@ -16,6 +16,7 @@ export const bodyToMember = (body) => {
 // member 응답 DTO
 export const responseFromMember = ({member, favoriteFoodKinds}) => { 
     return {
+        id: member.id,
         name: member.name,
         nickname: member.nickname,
         gender: member.gender,

@@ -26,7 +26,12 @@ export const getMember = async (memberId) => {
         if (member == null){ // 미션과 매핑할 회원이 없다면
             return null;
         }
-        return member;
+        const formattedMember = {
+            ...member,
+            id: member.id.toString(),
+            points: member.points.toString(),
+        };
+        return formattedMember;
     }
     catch(err){
         throw new ServerError(`서버 내부 오류: ${err.stack}`);

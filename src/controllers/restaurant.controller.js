@@ -21,8 +21,8 @@ export const handleRestaurantRegist = async(req, res, next) => {
                         "name": { type: "string" },
                         "introduction": { type: "string" },
                         "foodKinds": { type: "array", items: { type: "number" } },
-                        "startTime": { type: "string" },
-                        "endTime": { type: "string" }
+                        "startTime": { type: "string", example: "09:00:00" },
+                        "endTime": { type: "string", example: "21:00:00" }
                     }
                 }
             }
@@ -40,13 +40,14 @@ export const handleRestaurantRegist = async(req, res, next) => {
                         success: {
                             type: "object",
                             properties: {
+                                "id": { type: "string", example: "1" },
                                 "ceo": { type: "string" },
                                 "region": { type: "string" },
                                 "name": { type: "string" },
                                 "introduction": { type: "string" },
                                 "foodKinds": { type: "array", items: { type: "string" } },
-                                "startTime": { type: "string" },
-                                "endTime": { type: "string" }
+                                "startTime": { type: "string", example: "09:00:00" },
+                                "endTime": { type: "string, example: "21:00:00"" }
                             }
                         }  
                     }
@@ -59,19 +60,7 @@ export const handleRestaurantRegist = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: { 
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            }
-                        },
-                        success: { type: "object", nullable: true, example: null }
-                    }  
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
@@ -95,40 +84,7 @@ export const handleListRestaurantReviews = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "SUCCESS" },
-                        error: { type: "object", nullable: true, example: null },
-                        success: {
-                            type: "object",
-                            properties: {
-                                data: {
-                                    type: "array",
-                                    items: {
-                                        type: "object",
-                                        properties: {
-                                            id: { type: "string", example: "1" },
-                                            restaurant: { type: "string" },
-                                            writer: { type: "string" },
-                                            content: { type: "string" },
-                                            rating: { type: "number", example: 4.5 },
-                                            status: { type: "number" },
-                                            createdAt: { type: "string", format: "date-time", example: "2024-11-18T14:23:45.123456Z" }
-                                        }
-                                    }
-                                },
-                                pagination: {
-                                    type: "object",
-                                    properties: {
-                                        cursor: {
-                                            type: "number",
-                                            nullable: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    $ref: "#/components/schemas/ReviewListSuccessResponse"
                 }
             }
         }
@@ -138,19 +94,7 @@ export const handleListRestaurantReviews = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: {
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            }
-                        },
-                        success: { type: "object", nullable: true, example: null }
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
@@ -188,12 +132,12 @@ export const handleListRestaurantMissions = async(req, res, next) => {
                                     items: {
                                         type: "object",
                                         properties: {
-                                            "id": { type: "string", example: "1" },
-                                            "restaurant": { type: "string" },
-                                            "name": { type: "string" },
-                                            "introduction": { type: "string" },
-                                            "points": { type: "string", example: "100" },
-                                            "status": { type: "number" }
+                                            id: { type: "string", example: "1" },
+                                            restaurant: { type: "string" },
+                                            name: { type: "string" },
+                                            introduction: { type: "string" },
+                                            points: { type: "number", example: 4.5 },
+                                            status: { type: "number" },
                                         }
                                     }
                                 },
@@ -205,10 +149,10 @@ export const handleListRestaurantMissions = async(req, res, next) => {
                                             nullable: true
                                         }
                                     }
-                                }     
+                                }
                             }
                         }
-                    }
+                    }                
                 }
             }
         }
@@ -218,19 +162,7 @@ export const handleListRestaurantMissions = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: {
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            }
-                        },
-                        success: { type: "object", nullable: true, example: null }
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }

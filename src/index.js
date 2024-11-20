@@ -43,6 +43,94 @@ app.get("/openapi.json", async(req, res, next) => {
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
     host: "localhost:3001",
+    components: {
+      '@schemas': {
+        ErrorResponse: {
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "FAIL" },
+            error: { 
+              type: "object",
+              properties: {
+                errorCode: { type: "string", example: "U001" },
+                reason: { type: "string" },
+                data: { type: "object" }
+              } 
+            },
+            success: { type: "object", nullable: true, example: null }    
+          }
+        },
+        ReviewListSuccessResponse: {
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "SUCCESS" },
+            error: { type: "object", nullable: true, example: null },
+            success: {
+              type: "object",
+              properties: {
+                data: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", example: "1" },
+                      restaurant: { type: "string" },
+                      writer: { type: "string" },
+                      content: { type: "string" },
+                      rating: { type: "number", example: 4.5 },
+                      status: { type: "number", example: 0 },
+                      createdAt: { type: "string", format: "date-time", example: "2024-11-18T14:23:45.123456Z" }
+                    }
+                  }
+                },
+                pagination: {
+                  type: "object",
+                  properties: {
+                    cursor: {
+                      type: "number",
+                      nullable: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        MissionSuccessResponse: {
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "SUCCESS" },
+            error: { type: "object", nullable: true, example: null },
+            success: {
+              type: "object", 
+              properties: {
+                id: { type: "string", example: "1" },
+                member: { type: "string" },
+                restaurant: { type: "string" },
+                name: { type: "string" },
+                introduction: { type: "string" },
+                deadline: { type: "string", format: "date-time", example: "2025-02-01T00:00:00Z" },
+                points: { type: "string", example: "100" },
+                status: { type: "number", example: 0 }
+              }
+            }    
+          }
+        },
+        MemberSuccessResponse: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            nickname: { type: "string" },
+            gender: { type: "number" },
+            birth: { type: "string", example: "2000-04-24" },
+            location: { type: "string" },
+            email: { type: "string" },
+            phoneNumber: { type: "string", example: "010-0000-0000" },
+            favoriteFoodKinds: { type: "array", items: { type: "number" } }
+          }
+        },
+      },
+    }
   };
   const result = await swaggerAutogen(options)(outputFile, routes, doc);
   res.json(result ? result.data : null);

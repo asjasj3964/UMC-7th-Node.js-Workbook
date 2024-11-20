@@ -57,19 +57,7 @@ export const handleMissionRegist = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: { 
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U001" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            } 
-                        },
-                        success: { type: "object", nullable: true, example: null }    
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }

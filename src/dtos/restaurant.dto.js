@@ -17,7 +17,7 @@ export const responseFromRestaurant = ({restaurant, foodKinds}) => {
     return {
         id: restaurant.id,
         ceo: restaurant.ceo.name,
-        region: restaurant.region.name,
+        region: restaurant.region.address,
         name: restaurant.name,
         introduction: restaurant.introduction,
         startTime: restaurant.startTime,

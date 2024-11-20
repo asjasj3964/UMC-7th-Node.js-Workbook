@@ -23,50 +23,21 @@ export const handleMemberMissionRegist = async(req, res, next) => {
         }
     };
     #swagger.responses[200] = {
-        description: "진행 중인 미션 등록 성공 응답",
+        description: "참여 미션 등록 성공 응답",
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "SUCCESS" },
-                        error: { type: "object", nullable: true, example: null },
-                        success: {
-                            type: "object", 
-                            properties: {
-                                id: { type: "string", example: "1" },
-                                member: { type: "string" },
-                                restaurant: { type: "string" },
-                                name: { type: "string" },
-                                introduction: { type: "string" },
-                                deadline: { type: "string", format: "date-time", example: "2025-02-01T00:00:00Z" },
-                                points: { type: "string", example: "100" },
-                                status: { type: "number", example: 0 }
-                            }
-                        }    
-                    }
+                    $ref: "#/components/schemas/MissionSuccessResponse"
                 }
             }
         }
     };
     #swagger.responses[400] = {
-        description: "진행 중인 미션 등록 실패 응답",
+        description: "참여 미션 등록 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: { 
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            } 
-                        },
-                        success: { type: "object", nullable: true, example: null }    
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
@@ -95,17 +66,15 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
                         resultType: { type: "string", example: "SUCCESS" },
                         error: { type: "object", nullable: true, example: null },
                         success: {
-                            type: "object", 
-                            properties: {
-                                id: { type: "string", example: "1" },
-                                member: { type: "string" },
-                                restaurant: { type: "string" },
-                                name: { type: "string" },
-                                introduction: { type: "string" },
-                                deadline: { type: "string", format: "date-time", example: "2025-02-01T00:00:00Z" },
-                                points: { type: "string", example: "100" },
-                                status: { type: "number", example: 1 }
-                            }
+                            allOf: [
+                                { $ref: "#/components/schemas/MissionSuccessResponse/properties/success" },
+                                {
+                                    type: "object", 
+                                    properties: {
+                                        status: { type: "number", example: 1 }
+                                    }   
+                                }
+                            ]
                         }    
                     }
                 }
@@ -117,19 +86,7 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: { 
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U001" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            } 
-                        },
-                        success: { type: "object", nullable: true, example: null }    
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }

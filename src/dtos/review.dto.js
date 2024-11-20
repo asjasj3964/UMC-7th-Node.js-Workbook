@@ -30,7 +30,7 @@ export const responseFromReviews = (reviews) => {
 export const responseFromReview = (review) => {
     return {
         id: review.id,
-        member: review.member.name,
+        writer: review.member.name,
         restaurant: review.restaurant.name,
         rating: review.rating,
         content: review.content,

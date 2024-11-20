@@ -14,17 +14,7 @@ export const handleMemberSignUp = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        name: { type: "string" },
-                        nickname: { type: "string" },
-                        gender: { type: "number" },
-                        birth: { type: "string" },
-                        location: { type: "string" },
-                        email: { type: "string" },
-                        phoneNumber: { type: "string" },
-                        favoriteFoodKinds: { type: "array", items: { type: "number" } }
-                    }
+                    $ref: "#/components/schemas/MemberSuccessResponse"
                 }
             }
         }
@@ -39,17 +29,16 @@ export const handleMemberSignUp = async(req, res, next) => {
                         resultType: { type: "string", example: "SUCCESS" },
                         error: { type: "object", nullable: true, example: null },
                         success: {
-                            type: "object", 
-                            properties: {
-                                name: { type: "string" },
-                                nickname: { type: "string" },
-                                gender: { type: "number", example: 1 },
-                                birth: { type: "string" },
-                                location: { type: "string" },
-                                email: { type: "string" },
-                                phoneNumber: { type: "string" },
-                                favoriteFoodKinds: { type: "array", items: { type: "string" } }
-                            }
+                            allOf: [
+                                { $ref: "#/components/schemas/MemberSuccessResponse" },
+                                { 
+                                    type: "object",
+                                    properties: {
+                                        id: { type: "string", example: "1" },
+                                        favoriteFoodKinds: { type: "array", items: { type: "string" } }
+                                    }
+                                },
+                            ]
                         }    
                     }
                 }
@@ -61,19 +50,7 @@ export const handleMemberSignUp = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: { 
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U001" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            } 
-                        },
-                        success: { type: "object", nullable: true, example: null }    
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
@@ -98,40 +75,7 @@ export const handleListMemberReviews = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "SUCCESS" },
-                        error: { type: "object", nullable: true, example: null },
-                        success: {
-                            type: "object",
-                            properties: {
-                                data: {
-                                    type: "array",
-                                    items: {
-                                        type: "object",
-                                        properties: {
-                                            id: { type: "string", example: "1" },
-                                            restaurant: { type: "string" },
-                                            writer: { type: "string" },
-                                            content: { type: "string" },
-                                            rating: { type: "number", example: 4.5 },
-                                            status: { type: "number" },
-                                            createdAt: { type: "string", format: "date-time", example: "2024-11-18T14:23:45.123456Z" }
-                                        }
-                                    }
-                                },
-                                pagination: {
-                                    type: "object",
-                                    properties: {
-                                        cursor: {
-                                            type: "number",
-                                            nullable: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    $ref: "#/components/schemas/ReviewListSuccessResponse"
                 }
             }
         }
@@ -141,19 +85,7 @@ export const handleListMemberReviews = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: {
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            }
-                        },
-                        success: { type: "object", nullable: true, example: null }
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
@@ -167,15 +99,15 @@ export const handleListMemberReviews = async(req, res, next) => {
     res.status(StatusCodes.OK).success(reviews);
 }
 
-// 특정 회원 모든 미션 조회
+// 특정 회원의 진행 중인 모든 미션 조회
 export const handleListMemberMission = async(req, res, next) => {
     /*
     #swagger.ignore = false
     #swagger.tags = ['member-controller']
-    #swagger.summary = "회원의 참여 미션 목록 조회 API";
-    #swagger.description = '회원의 참여 미션 목록 조회 API입니다.'
+    #swagger.summary = "회원의 진행 중인 미션 목록 조회 API";
+    #swagger.description = '회원의 진행 중인 미션 목록 조회 API입니다.'
     #swagger.responses[200] = {
-        description: "회원의 참여 미션 목록 조회 성공 응답",
+        description: "회원의 진행 중인 미션 목록 조회 성공 응답",
         content: {
             "application/json": {
                 schema: {
@@ -189,17 +121,7 @@ export const handleListMemberMission = async(req, res, next) => {
                                 data: {
                                     type: "array",
                                     items: {
-                                        type: "object",
-                                        properties: {
-                                            id: { type: "string", example: "1" },
-                                            member: { type: "string" },
-                                            restaurant: { type: "string" },
-                                            name: { type: "string" },
-                                            introduction: { type: "string" },
-                                            points: { type: "string", example: "100" },
-                                            status: { type: "number", example: 0 },
-                                            deadline: { type: "string", format: "data-time", example: "2025-01-01T00:00:00Z" }
-                                        }
+                                        $ref: "#/components/schemas/MissionSuccessResponse/properties/success",
                                     }
                                 },
                                 pagination: {
@@ -219,23 +141,11 @@ export const handleListMemberMission = async(req, res, next) => {
         }
     };
     #swagger.responses[400] = {
-        description: "회원의 참여 미션 목록 조회 실패 응답",
+        description: "회원의 진행 중인 미션 목록 조회 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    type: "object",
-                    properties: {
-                        resultType: { type: "string", example: "FAIL" },
-                        error: {
-                            type: "object",
-                            properties: {
-                                errorCode: { type: "string", example: "U404" },
-                                reason: { type: "string" },
-                                data: { type: "object" }
-                            }
-                        },
-                        success: { type: "object", nullable: true, example: null }
-                    }
+                    $ref: "#/components/schemas/ErrorResponse"
                 }
             }
         }
