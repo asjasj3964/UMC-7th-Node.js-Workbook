@@ -51,7 +51,7 @@ export const handleReviewRegist = async(req, res, next) => {
         }
     };
     #swagger.responses[500] = {
-        description: "리뷰 등록 실패 응답 - 존재하지 않는 식당 또는 회원",
+        description: "리뷰 등록 실패 응답",
         content: {
             "application/json": {
                 schema: {

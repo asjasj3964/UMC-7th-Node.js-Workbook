@@ -33,7 +33,7 @@ export const handleMemberMissionRegist = async(req, res, next) => {
         }
     };
     #swagger.responses[500] = {
-        description: "참여 미션 등록 실패 응답 - 존재하지 않는 미션이나 회원",
+        description: "참여 미션 등록 실패 응답",
         content: {
             "application/json": {
                 schema: {
