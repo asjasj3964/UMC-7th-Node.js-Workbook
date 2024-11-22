@@ -5,7 +5,7 @@ import { getAllMemberReviews } from '../repositories/member.repository.js';
 import { DuplicateError, CannotHandleError, NotExistError } from '../errors.js';
 import { getFoodKind } from '../repositories/foodkind.repository.js';
 
-// 회원 추가 및 선호 음식 매핑, 유효하지 않은 데이터 에러 처리
+// 회원 추가 및 선호 음식 매핑, 존재하지 않는 데이터 에러 처리
 export const memberSignUp = async(data) => {
     // 등록하려는 음식 종류가 존재하지 않을 경우 에러 처리
     for (const foodKindId of data.favoriteFoodKinds){

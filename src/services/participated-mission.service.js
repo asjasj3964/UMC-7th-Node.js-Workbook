@@ -36,7 +36,7 @@ export const memberMissionUpdateCompleted = async(participatedMissionId) => {
     // 해당 미션이 존재하지 않을 경우 에러 처리
     const confirmMemberMission = await getMemberMission(participatedMissionId);
     if (confirmMemberMission == null){
-        throw new NotExistError("존재하지 않는 미션", {participatedMissionId: participatedMissionId});
+        throw new NotExistError("존재하지 않는 참여 미션", {participatedMissionId: participatedMissionId});
     }
     if (confirmMemberMission.status != 0){
         throw new CannotHandleError("이미 완료된 미션", responseFromMemberMission(confirmMemberMission));

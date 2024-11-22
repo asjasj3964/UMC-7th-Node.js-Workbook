@@ -50,12 +50,23 @@ export const handleReviewRegist = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
-        description: "리뷰 등록 실패 응답",
+    #swagger.responses[500] = {
+        description: "리뷰 등록 실패 응답 - 존재하지 않는 식당 또는 회원",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 식당": {
+                        $ref: "#/components/examples/RestaurantNotFoundErrorExample"
+                    }, 
+                    "존재하지 않는 회원": {
+                        $ref: "#/components/examples/MemberNotFoundErrorExample"
+                    }, 
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }

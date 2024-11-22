@@ -8,23 +8,6 @@ export const handleMissionRegist = async(req, res, next) => {
     #swagger.tags = ['mission-controller']
     #swagger.summary = '미션 등록 API';
     #swagger.description = '미션 등록 API입니다.'
-    #swagger.parameters['memberId'] = {
-        in: 'path',
-        required: true,
-        description: "미션의 ID 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
-    }
-    #swagger.parameters['cursor'] = {
-        in: 'query',
-        description: "페이징 커서 값 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
-    }
     #swagger.requestBody = {
         required: true,
         content: {
@@ -69,12 +52,46 @@ export const handleMissionRegist = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
+    #swagger.responses[500] = {
         description: "미션 등록 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "잘못된 마감기한 설정": {
+                        summary: "잘못된 마감기한 설정",
+                        description: "미션의 마감기한을 과거로 설정하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U403",
+                                reason: "마감기한을 과거로 설정하였음",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    },
+                    "존재하지 않는 식당": {
+                        $ref: "#/components/examples/RestaurantNotFoundErrorExample"
+                    }, 
+                    "중복된 미션": {
+                        summary: "중복된 미션",
+                        description: "이미 동일한 식당, 미션명, 미션 설명, 마감기한의 미션이 존재합니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U001",
+                                reason: "중복된 미션",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    }, 
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }

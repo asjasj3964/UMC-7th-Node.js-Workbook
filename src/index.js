@@ -19,33 +19,63 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(
-  "/docs",
-  swaggerUiExpress.serve,
-  swaggerUiExpress.setup({}, {
-    swaggerOptions: {
-      url: "/openapi.json",
+  "/docs", // Swagger UI가 표시될 경로
+  swaggerUiExpress.serve, // Swagger UI의 정적 파일(HTML, CSS, JS)을 제공하는 미들웨어
+  swaggerUiExpress.setup({}, { // Swagger UI의 설정 초기화, Swagger 문서를 불러오는 방식 정의
+    swaggerOptions: { // Swagger UI의 동작 제어
+      url: "/openapi.json", // /openapi.json 경로에서 Swagger 문서를 가져오도록 설정
     },
   })
 );
 
-app.get("/openapi.json", async(req, res, next) => {
+app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagger 문서 요청 시 /openapi.json 경로가 호출된다. 
   // #swagger.ignore = true
-  const options = {
-    openapi: "3.0.0",
-    disableLogs: true,
-    writeOutputFile: false,
+  const options = { // Swagger Autogen 옵션 설정
+    openapi: "3.0.0", // 생성될 문서의 OpenAPI 버전
+    disableLogs: true, // Swagger Autogen 실행 시 불필요한 로그 출력 비활성화
+    writeOutputFile: false, // 문서를 파일로 저장하지 않는다.
   };
-  const outputFile = "/dev/null"; // 파일 출력은 사용하지 않는다. 
-  const routes = ["./src/index.js"];
-  const doc = {
-    info: {
+  const outputFile = "/dev/null"; // 생성된 Swagger 문서를 저장할 파일 경로 지정 (파일 출력은 사용하지 않는다.) 
+  const routes = ["./src/index.js"]; // 문서화할 라우트가 정의된 파일 경로를 배열로 지정
+  const doc = { // Swagger 문서의 메타데이터와 스키마 정의
+    info: { // API의 제목과 설명 설정
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    host: "localhost:3001",
-    components: {
-      '@schemas': {
-        ErrorResponse: {
+    host: "localhost:3001", // API가 실행되는 서버의 호스트 정보
+    components: { // 공통적으로 사용되는 스키마 정의
+      responses: { // 응답 
+        NotFoundErrorResponse: { // Not Found 에러 응답 
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "FAIL" },
+            error: { 
+              type: "object",
+              properties: {
+                errorCode: { type: "string", example: "U404" },
+                reason: { type: "string" },
+                data: { type: "object" }
+              } 
+            },
+            success: { type: "object", nullable: true, example: null }    
+          }
+        },
+        ForbiddenErrorResponse: { // Forbidden 에러 응답 
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "FAIL" },
+            error: { 
+              type: "object",
+              properties: {
+                errorCode: { type: "string", example: "U403" },
+                reason: { type: "string" },
+                data: { type: "object" }
+              } 
+            },
+            success: { type: "object", nullable: true, example: null }    
+          }
+        },
+        DuplicateErrorResponse: { // 중복 에러 응답 
           type: "object",
           properties: {
             resultType: { type: "string", example: "FAIL" },
@@ -60,7 +90,22 @@ app.get("/openapi.json", async(req, res, next) => {
             success: { type: "object", nullable: true, example: null }    
           }
         },
-        ReviewListSuccessResponse: {
+        ServerErrorResponse: { // 서버 내부 에러 응답 
+          type: "object",
+          properties: {
+            resultType: { type: "string", example: "FAIL" },
+            error: { 
+              type: "object",
+              properties: {
+                errorCode: { type: "string", example: "U500" },
+                reason: { type: "string" },
+                data: { type: "object" }
+              } 
+            },
+            success: { type: "object", nullable: true, example: null }    
+          }
+        },
+        ReviewListSuccessResponse: { // 리뷰 목록 성공 응답 
           type: "object",
           properties: {
             resultType: { type: "string", example: "SUCCESS" },
@@ -97,7 +142,7 @@ app.get("/openapi.json", async(req, res, next) => {
             }
           }
         },
-        MissionSuccessResponse: {
+        MissionSuccessResponse: { // mission 성공 응답 
           type: "object",
           properties: {
             resultType: { type: "string", example: "SUCCESS" },
@@ -117,7 +162,9 @@ app.get("/openapi.json", async(req, res, next) => {
             }    
           }
         },
-        MemberSuccessResponse: {
+      },
+      '@schemas': { // swagger-autogen 렌더링을 무시하고 Swagger Spec에서 직접적으로 정의된 스키마 렌더링
+        MemberSchema: { // member 스키마
           type: "object",
           properties: {
             name: { type: "string" },
@@ -130,11 +177,125 @@ app.get("/openapi.json", async(req, res, next) => {
             favoriteFoodKinds: { type: "array", items: { type: "number" } }
           }
         },
+        PaginationSchema: { // 페이징 응답 스키마
+          type: "object",
+          properties: {
+            cursor: {
+              type: "string",
+              nullable: true,
+              example: null
+            }
+          }
+        }
       },
+      parameters: { // 파라미터
+        CursorParam: { // 커서 파라미터
+          name: "cursor",
+          in: "query",
+          description: "페이징 커서 값 입력",
+          schema: {
+            type: "integer",
+            format: "int64"
+          }
+        },
+        MemberIdParam: { // 회원 ID 파라미터
+          name: "memberId",
+          in: 'path',
+          required: true,
+          description: "회원의 ID 입력",
+          schema: {
+            type: "integer",
+            format: "int64"
+          }
+        },
+        RestaurantIdParam: { // 식당 ID 파라미터 
+          name: "restaurantId",
+          in: 'path',
+          required: true,
+          description: "식당의 ID 입력",
+          schema: {
+            type: "integer",
+            format: "int64"
+          }
+        },
+      },
+      examples: {
+        ServerErrorExample: { // 서버 내부 에러 응답 예시
+          summary: "서버 내부 오류",
+          description: "서버에서 예상치 못한 오류가 발생하였습니다.",
+          value:{
+            resultType: "FAIL",
+            error: { 
+                errorCode: "U500",
+                reason: "서버 내부 오류",
+                data: {}
+            },
+            success: null 
+          } 
+        },
+        MemberNotFoundErrorExample: { // member Not Found 에러 응답 예시
+          summary: "존재하지 않는 회원",
+          description: "등록되어 있지 않은 회원 ID로 조회하였습니다.",
+          value: {
+            resultType: "FAIL",
+            error: { 
+              errorCode: "U404",
+              reason: "존재하지 않는 회원",
+              data: {}
+            },
+            success: null 
+          },
+        },
+        RestaurantNotFoundErrorExample: { // restaurant Not Found 에러 응답 예시
+          summary: "존재하지 않는 식당",
+          description: "등록되어 있지 않은 식당 ID로 조회하였습니다.",
+          value: {
+            resultType: "FAIL",
+            error: { 
+              errorCode: "U404",
+              reason: "존재하지 않는 식당",
+              data: {}
+            },
+            success: null 
+          },
+        },
+        FoodKindNotFoundErrorExample: { // foodKind Not Found 에러 응답 예시
+          summary: "존재하지 않는 음식 종류",
+          description: "등록되어 있지 않은 음식 종류 ID로 조회하였습니다.",
+          value: {
+            resultType: "FAIL",
+            error: { 
+                errorCode: "U404",
+                reason: "존재하지 않는 음식 종류",
+                data: {}
+            },
+            success: null 
+          },
+        },
+        DeadlineErrorExample: { // 마감기한 에러 응답 예시
+          summary: "이미 종료된 미션",
+          description: "이미 마감기한이 지난 미션입니다.",
+          value: {
+            resultType: "FAIL",
+            error: { 
+              errorCode: "U403",
+              reason: "이미 종료된 미션",
+              data: {}
+            },
+            success: null 
+          },
+        }
+      }
     }
   };
   const result = await swaggerAutogen(options)(outputFile, routes, doc);
+  // swaggerAutogen(options): Swagger Autogen 모듈 초기화
+  // outputFile: 문서를 출력할 파일 경로
+  // routes: 라우트 파일 경로 배열
+  // doc: 추가 메타데이터 및 스키마
   res.json(result ? result.data : null);
+  // result 객체가 생성되었는지 확인
+  // result.data: Swagger Autogen이 생성한 JSON 데이터 포함
 });
 
 // 공통 응답을 사용할 수 있는 헬퍼 함수 등록

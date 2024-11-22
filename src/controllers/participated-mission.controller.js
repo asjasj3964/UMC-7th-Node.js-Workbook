@@ -27,17 +27,54 @@ export const handleMemberMissionRegist = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/MissionSuccessResponse"
+                    $ref: "#/components/responses/MissionSuccessResponse"
                 }
             }
         }
     };
-    #swagger.responses[400] = {
-        description: "참여 미션 등록 실패 응답",
+    #swagger.responses[500] = {
+        description: "참여 미션 등록 실패 응답 - 존재하지 않는 미션이나 회원",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 미션": {
+                        summary: "존재하지 않는 미션",
+                        description: "등록되어 있지 않은 미션 ID로 조회하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U404",
+                                reason: "존재하지 않는 미션",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    },
+                    "존재하지 않는 회원": {
+                        $ref: "#/components/examples/MemberNotFoundErrorExample"
+                    }, 
+                    "이미 종료된 미션": {
+                        $ref: "#/components/examples/DeadlineErrorExample"
+                    }, 
+                    "이미 참여한 미션": {
+                        summary: "이미 참여한 미션",
+                        description: "이미 참여 미션으로 등록한 미션입니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U001",
+                                reason: "이미 참여한 미션",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    },
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
@@ -56,7 +93,7 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
     #swagger.tags = ['participated-mission-controller']
     #swagger.summary = '미션 상태 업데이트 API';
     #swagger.description = '미션 상태 업데이트 API입니다.';
-    #swagger.parameters['memberId'] = {
+    #swagger.parameters['participatedMissionId'] = {
         in: 'path',
         required: true,
         description: "참여한 미션의 ID 입력",
@@ -76,7 +113,7 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
                         error: { type: "object", nullable: true, example: null },
                         success: {
                             allOf: [
-                                { $ref: "#/components/schemas/MissionSuccessResponse/properties/success" },
+                                { $ref: "#/components/responses/MissionSuccessResponse/properties/success" },
                                 {
                                     type: "object", 
                                     properties: {
@@ -90,12 +127,46 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
-        description: "미션 상태 업데이트 실패 응답",
+    #swagger.responses[500] = {
+        description: "참여 미션 상태 업데이트 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 참여 미션": {
+                        summary: "존재하지 않는 참여 미션",
+                        description: "등록되어 있지 않은 참여 미션의 ID로 조회하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U404",
+                                reason: "존재하지 않는 참여 미션",
+                                data: {}
+                            },
+                            success: null 
+                        }
+                    },
+                    "이미 완료된 미션": {
+                        summmary: "이미 완료된 미션",
+                        description: "이미 완료된 미션입니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U403",
+                                reason: "이미 완료된 미션",
+                                data: {}
+                            },
+                            success: null                         
+                        }
+                    },
+                    "이미 종료된 미션": {
+                        $ref: "#/components/examples/DeadlineErrorExample"
+                    },
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }

@@ -8,7 +8,7 @@ export const reviewRegist = async(data) => {
     // 리뷰를 추가하려는 식당이 존재하는지 검증
     const restaurant = await getRestaurant(data.restaurantId);
     if (restaurant === null){ // 해당 식당이 존재하지 않다면
-        throw new NotExistError("존재하지 않은 식당", data); 
+        throw new NotExistError("존재하지 않는 식당", data); 
     }
     // 해당 회원이 존재하지 않을 경우 에러 처리
     const member = await getMember(data.memberId);

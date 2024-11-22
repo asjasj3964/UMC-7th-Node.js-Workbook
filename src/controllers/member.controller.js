@@ -14,7 +14,7 @@ export const handleMemberSignUp = async(req, res, next) => {
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/MemberSuccessResponse"
+                    $ref: "#/components/schemas/MemberSchema"
                 }
             }
         }
@@ -30,7 +30,7 @@ export const handleMemberSignUp = async(req, res, next) => {
                         error: { type: "object", nullable: true, example: null },
                         success: {
                             allOf: [
-                                { $ref: "#/components/schemas/MemberSuccessResponse" },
+                                { $ref: "#/components/schemas/MemberSchema" },
                                 { 
                                     type: "object",
                                     properties: {
@@ -45,12 +45,33 @@ export const handleMemberSignUp = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
+    #swagger.responses[500] = {
         description: "회원가입 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "중복된 이메일": {
+                        summary: "중복된 이메일",
+                        description: "이미 등록된 계정으로 가입 시도를 하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U001",
+                                reason: "중복된 이메일",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    },
+                    "존재하지 않는 음식 종류": {
+                        $ref: "#/components/examples/FoodKindNotFoundErrorExample"
+                    }, 
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
@@ -71,38 +92,35 @@ export const handleListMemberReviews = async(req, res, next) => {
     #swagger.summary = "회원의 리뷰 목록 조회 API";
     #swagger.description = '회원의 리뷰 목록 조회 API입니다.'
     #swagger.parameters['memberId'] = {
-        in: 'path',
-        required: true,
-        description: "회원의 ID 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/MemberIdParam"
     }
     #swagger.parameters['cursor'] = {
-        in: 'query',
-        description: "페이징 커서 값 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/CursorParam"
     }
     #swagger.responses[200] = {
-        description: "회원의 리뷰 목록 조회 성공 응답",
+        description: "미션 목록 조회 성공 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ReviewListSuccessResponse"
+                    $ref: "#/components/responses/ReviewListSuccessResponse"
                 }
             }
         }
     }
-    #swagger.responses[400] = {
-        description: "회원의 리뷰 목록 조회 실패 응답",
+    #swagger.responses[500] = {
+        description: "미션 목록 조회 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 회원": {
+                        $ref: "#/components/examples/MemberNotFoundErrorExample"
+                    }, 
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
@@ -124,24 +142,13 @@ export const handleListMemberMission = async(req, res, next) => {
     #swagger.summary = "회원의 진행 중인 미션 목록 조회 API";
     #swagger.description = '회원의 진행 중인 미션 목록 조회 API입니다.'
     #swagger.parameters['memberId'] = {
-        in: 'path',
-        required: true,
-        description: "회원의 ID 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/MemberIdParam"
     }
     #swagger.parameters['cursor'] = {
-        in: 'query',
-        description: "페이징 커서 값 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/CursorParam"
     }
     #swagger.responses[200] = {
-        description: "회원의 진행 중인 미션 목록 조회 성공 응답",
+        description: "미션 목록 조회 성공 응답",
         content: {
             "application/json": {
                 schema: {
@@ -155,18 +162,11 @@ export const handleListMemberMission = async(req, res, next) => {
                                 data: {
                                     type: "array",
                                     items: {
-                                        $ref: "#/components/schemas/MissionSuccessResponse/properties/success",
+                                        $ref: "#/components/responses/MissionSuccessResponse/properties/success",
                                     }
                                 },
                                 pagination: {
-                                    type: "object",
-                                    properties: {
-                                        cursor: {
-                                            type: "string",
-                                            nullable: true,
-                                            example: "0"
-                                        }
-                                    }
+                                    $ref: "#/components/schemas/PaginationSchema"
                                 }     
                             }
                         }
@@ -175,12 +175,20 @@ export const handleListMemberMission = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
-        description: "회원의 진행 중인 미션 목록 조회 실패 응답",
+    #swagger.responses[500] = {
+        description: "미션 목록 조회 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 회원": {
+                        $ref: "#/components/examples/MemberNotFoundErrorExample"
+                    }, 
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }

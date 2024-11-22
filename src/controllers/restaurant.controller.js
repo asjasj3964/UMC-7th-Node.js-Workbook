@@ -55,16 +55,63 @@ export const handleRestaurantRegist = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
+    #swagger.responses[500] = {
         description: "식당 등록 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 CEO": {
+                        summary: "존재하지 않는 CEO",
+                        description: "등록되어 있지 않은 CEO ID로 조회하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U404",
+                                reason: "존재하지 않는 CEO",
+                                data: {}
+                            },
+                            success: null 
+                        },
+                    },
+                    "존재하지 않는 위치": {
+                        summary: "존재하지 않는 위치",
+                        description: "등록되어 있지 않은 위치 ID로 조회하였습니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U404",
+                                reason: "존재하지 않는 위치",
+                                data: {}
+                            },
+                            success: null 
+                        }
+                    },
+                    "존재하지 않는 음식 종류": {
+                        $ref: "#/components/examples/FoodKindNotFoundErrorExample"
+                    }, 
+                    "중복된 식당": {
+                        summary: "중복된 식당",
+                        description: "이미 동일한 위치와 이름의 식당이 존재합니다.",
+                        value: {
+                            resultType: "FAIL",
+                            error: { 
+                                errorCode: "U001",
+                                reason: "중복된 식당",
+                                data: {}
+                            },
+                            success: null 
+                        }                    
+                    },
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
-    }
+    };
     */
     console.log("식당 등록");
     console.log("body: ", req.body);
@@ -80,42 +127,40 @@ export const handleListRestaurantReviews = async(req, res, next) => {
     #swagger.summary = "식당의 리뷰 목록 조회 API";
     #swagger.description = '식당의 리뷰 목록 조회 API입니다.'
     #swagger.parameters['restaurantId'] = {
-        in: 'path',
-        required: true,
-        description: "식당의 ID 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/RestaurantIdParam"
+
     }
     #swagger.parameters['cursor'] = {
-        in: 'query',
-        description: "페이징 커서 값 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/CursorParam"
     }
     #swagger.responses[200] = {
-        description: "식당의 리뷰 목록 조회 성공 응답",
+        description: "리뷰 목록 조회 성공 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ReviewListSuccessResponse"
+                    $ref: "#/components/responses/ReviewListSuccessResponse"
                 }
             }
         }
-    }
-    #swagger.responses[400] = {
-        description: "식당의 리뷰 목록 조회 실패 응답",
+    };
+    #swagger.responses[500] = {
+        description: "리뷰 목록 조회 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 식당": {
+                        $ref: "#/components/examples/RestaurantNotFoundErrorExample"
+                    },
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
-    }
+    };
     */
     const reviews = await listRestaurantReviews(
         parseInt(req.params.restaurantId), // URL 경로에서 restaurantId(Path Parameter)를 가져온다.
@@ -133,21 +178,10 @@ export const handleListRestaurantMissions = async(req, res, next) => {
     #swagger.summary = "식당의 미션 목록 조회 API";
     #swagger.description = '식당의 미션 목록 조회 API입니다.'
     #swagger.parameters['restaurantId'] = {
-        in: 'path',
-        required: true,
-        description: "식당의 ID 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/RestaurantIdParam"
     }
     #swagger.parameters['cursor'] = {
-        in: 'query',
-        description: "페이징 커서 값 입력",
-        '@schema': {
-            type: "integer",
-            format: "int64"
-        }
+        $ref: "#/components/parameters/CursorParam"
     }
     #swagger.responses[200] = {
         description: "식당의 미션 목록 조회 성공 응답",
@@ -176,14 +210,7 @@ export const handleListRestaurantMissions = async(req, res, next) => {
                                     }
                                 },
                                 pagination: {
-                                    type: "object",
-                                    properties: {
-                                        cursor: {
-                                            type: "string",
-                                            nullable: true,
-                                            example: "0"
-                                        }
-                                    }
+                                    $ref: "#/components/schemas/PaginationSchema"
                                 }
                             }
                         }
@@ -192,16 +219,24 @@ export const handleListRestaurantMissions = async(req, res, next) => {
             }
         }
     };
-    #swagger.responses[400] = {
-        description: "식당의 미션 목록 조회 실패 응답",
+    #swagger.responses[500] = {
+        description: "미션 목록 조회 실패 응답",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
+                    $ref: "#/components/responses/NotFoundErrorResponse"
+                },
+                examples: {
+                    "존재하지 않는 식당": {
+                        $ref: "#/components/examples/RestaurantNotFoundErrorExample"
+                    },
+                    "서버 내부 오류": {
+                        $ref: "#/components/examples/ServerErrorExample"
+                    } 
                 }
             }
         }
-    }
+    };
     */
     const missions = await listRestaurantMissions(
         parseInt(req.params.restaurantId),

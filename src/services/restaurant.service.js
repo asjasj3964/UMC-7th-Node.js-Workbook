@@ -14,10 +14,10 @@ export const restaurantRegist = async(data) => {
     if (ceo === null){
         throw new NotExistError("존재하지 않는 CEO", data); // 동일한 식당을 등록하는 것을 방지
     }
-    // 해당 위치가 유효하지 않을 경우 에러 처리
+    // 해당 위치가 존재하지 않을 경우 에러 처리
     const region = await getRegion(data.regionId);
     if (region === null){
-        throw new NotExistError("유효하지 않은 위치", data);
+        throw new NotExistError("존재하지 않는 위치", data);
     }
     // 등록하려는 음식 종류가 존재하지 않을 경우 에러 처리
     for (const foodKind of data.foodKinds){
@@ -50,7 +50,7 @@ export const listRestaurantReviews = async(restaurantId, cursor) => {
     // 해당 식당이 존재하지 않을 경우 에러 처리
     const restaurant = await getRestaurant(restaurantId);
     if (restaurant === null){
-        throw new NotExistError("존재하지 않은 식당", {restaurantId: restaurantId}); 
+        throw new NotExistError("존재하지 않는 식당", {restaurantId: restaurantId}); 
     }
     const reviews = await getAllRestaurantReviews(restaurantId, cursor);
     return responseFromReviews(reviews);
@@ -60,7 +60,7 @@ export const listRestaurantMissions = async(restaurantId, cursor) => {
     // 해당 식당이 존재하지 않을 경우 에러 처리
     const restaurant = await getRestaurant(restaurantId);
     if (restaurant === null){
-        throw new NotExistError("존재하지 않은 식당", {restaurantId: restaurantId}); 
+        throw new NotExistError("존재하지 않는 식당", {restaurantId: restaurantId}); 
     }
     const missions = await getAllRestaurantMissions(restaurantId, cursor);
     return responseFromMissions(missions);
