@@ -11,8 +11,17 @@ import { handleMissionRegist } from './controllers/mission.controller.js';
 import { handleMissionUpdateCompleted } from './controllers/participated-mission.controller.js';
 import swaggerAutogen from 'swagger-autogen';
 import swaggerUiExpress from "swagger-ui-express"
+import passport from 'passport';
+import { googleStrategy } from './auth.config.js';
+import session from 'express-session';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import { prisma } from "./db.config.js";
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
+
+passport.use(googleStrategy); // passport 라이브러리에 정의한 로그인 방식 등록
+passport.serializeUser((member, done) => done(null, member)); // 세션에 회원 정보 저장
+passport.deserializeUser((member, done) => done(null, member)); // 세션의 정보 가져옴
 
 const app = express();
 // const port = 3000 // 서버 실행 포트를 3000번으로 지정
@@ -325,6 +334,25 @@ app.use(express.static("public")) // 정적 파일 접근
 app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도록 한다. (JSON 형태로 요청 body를 파싱하기 위함)
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 
+app.use(
+  session({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+    },
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    store: new PrismaSessionStore(prisma, {
+      checkPeriod: 2 * 60 * 1000, // ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 const myLogger = (req, res, next) => {
   console.log("LOGGED"); // 다음 미들웨어나 라우트 핸들러로 제어를 넘긴다. 
   next(); // next()가 없을 경우 요청이 정지된다. (다음 미들웨어로 넘어가지 않는다)
@@ -332,16 +360,27 @@ const myLogger = (req, res, next) => {
 
 app.use(myLogger); // myLogger 미들웨어가 실행되도록 등록한다.
 
-// // GET 요청 처리 라우트 설정
-// app.get('/', (req, res) => {
-//   console.log("/");
-//   res.send('Hello World! UMC Wenty') // 메시지를 클라이언트에 응답
-// })
+app.get("/oauth2/login/google", passport.authenticate("google"));
+app.get(
+  "/oauth2/callback/google",
+  passport.authenticate("google", {
+    failureRedirect: "/oauth2/login/google",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);
 
 // app.get('/hello', (req, res) => {
 //   console.log("Hello ");
 //   res.send('안녕이란 말 Hello Hello ~');
 // })
+
+// GET 요청 처리 라우트 설정
+app.get('/', (req, res) => {
+  // #swagger.ignore = true
+  console.log(req.user);
+  res.send('Hello World! UMC Wenty') // 메시지를 클라이언트에 응답
+})
 
 app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내면 핸들러 함수가 실행된다. 
 // curl.exe -X POST "http://localhost:3001/members" -H "Content-Type: application/json" -d '{\"name\":\"안성진\",\"nickname\":\"웬티\",\"gender\":2,\"birth\": \"2000-04-24\",\"location\": \"위치\",\"email\": \"이메일4\",\"phoneNumber\": \"010-0000-0000\", \"favoriteFoodKinds\": [1, 5, 6] }'
