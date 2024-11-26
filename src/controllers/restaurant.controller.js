@@ -16,7 +16,6 @@ export const handleRestaurantRegist = async(req, res, next) => {
                 schema: {
                     type: "object",
                     properties: {
-                        "ceoId": { type: "number" },
                         "regionId": { type: "number" },
                         "name": { type: "string" },
                         "introduction": { type: "string" },
@@ -115,7 +114,8 @@ export const handleRestaurantRegist = async(req, res, next) => {
     */
     console.log("식당 등록");
     console.log("body: ", req.body);
-    const restaurant = await restaurantRegist(bodyToRestaurant(req.body));
+    const memberId = req.user.id;
+    const restaurant = await restaurantRegist(memberId, bodyToRestaurant(req.body));
     res.status(StatusCodes.OK).success(restaurant);
 }
 

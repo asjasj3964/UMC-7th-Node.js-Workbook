@@ -1,10 +1,10 @@
-// bodyToMemberMission 요청 DTO
-export const bodyToMemberMission = (body) => { 
-    return {
-        memberId: body.memberId,
-        missionId: body.missionId
-    };
-};
+// // memberMission 요청 DTO
+// export const bodyToMemberMission = (data) => { 
+//     return {
+//         memberId: data.user.id,
+//         missionId: data.body.missionId
+//     };
+// };
 
 // memberMission 응답 DTO
 export const responseFromMemberMission = (data) => {
@@ -17,5 +17,32 @@ export const responseFromMemberMission = (data) => {
         deadline: data.mission.deadline,
         points: data.mission.points,
         status: data.status
+    }
+}
+
+// memberMission 요청 DTO
+export const bodyToMemberMission = (body) => {
+    return {
+        missionId: body.missionId
+    };
+}
+
+// 특정 회원의 memberMission 목록 응답 DTO
+export const responseFromMemberMissions = (memberMissions) => {
+    return {
+        data: memberMissions.map(memberMission => ({
+            id: memberMission.id,
+            member: memberMission.member.name,
+            restaurant: memberMission.mission.restaurant.name,
+            name: memberMission.mission.name,
+            introduction: memberMission.mission.introduction,
+            points: memberMission.mission.points,
+            status: memberMission.status,
+            deadline: memberMission.mission.deadline,
+        })),
+        pagination: {
+            cursor: memberMissions.length ? memberMissions[memberMissions.length - 1].id : null 
+            // 다음 페이지를 요청할 때 필요한 위치 표시, 배열이 비어있을 경우 null 처리
+        }
     }
 }

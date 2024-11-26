@@ -38,43 +38,8 @@ export const getMember = async (memberId) => {
     }
 };
 
-// 음식 - 선호 음식 종류 매핑
-export const setFavoriteFoodKind = async(memberId, favoriteFoodKindId) => {
-    try{
-        await prisma.memberFavoriteFoodKind.create({
-            data:{ // 새 레코드의 필드와 값을 지정한다. 
-                memberId: memberId,
-                foodKindId: favoriteFoodKindId
-            },
-        });
-    }
-    catch(err){
-        throw new ServerError(`서버 내부 오류: ${err.stack}`);
-    }
-};
-
-// 회원 - 선호 음식 종류 반환
-export const getMemberFavoriteFoodKindByMemberId = async (memberId) => {
-    try{
-        const favoriteFoodKinds = await prisma.memberFavoriteFoodKind.findMany({ // 여러 레코드 조회, 조건에 맞는 모든 레코드를 배열 형태로 반환
-            select: { // 반환할 필드 명시
-                id: true,
-                memberId: true,
-                foodKindId: true,
-                foodKind: true, // 참조하는 foodKind 테이블
-            },
-            where: { memberId: memberId },
-            orderBy: {foodKindId: "asc"}, // foodKindId 기준 오름차순 정렬
-        });
-        return favoriteFoodKinds;
-    }
-    catch(err){
-        throw new ServerError(`서버 내부 오류: ${err.stack}`);
-    }
-}
-
 // 특정 회원의 모든 리뷰 조회
-export const getAllMemberReviews = async(memberId, cursor) => {
+export const getAllReviews = async(memberId, cursor) => {
     try{
         const reviews = await prisma.review.findMany({
             select: {
@@ -119,48 +84,22 @@ export const getAllMemberReviews = async(memberId, cursor) => {
     }
 }
 
-// 특정 회원의 모든 미션 조회
-export const getAllMemberMissions = async(memberId, cursor) => {
+export const updateMember = async(memberId, data) => {
     try{
-        const memberMissions = await prisma.memberMission.findMany({
-            select: {
-                id: true,
-                member: true,
-                mission: {
-                    select: {
-                        id: true,
-                        name: true,
-                        introduction: true,
-                        points: true, 
-                        deadline: true,
-                        restaurant: true
-                    }
-                },
-                status: true, 
+        const memberUpdated = await prisma.member.update({
+            where: {
+                id: memberId
             },
-            where: { 
-                memberId: memberId, 
-                status: 0, // mission 객체의 status가 0(진행 중)인 미션들만 조회온다.
-                id: {gt: cursor}
-            },
-            orderBy: {id: "asc"},
-            take: 5
-        })
-        console.log(memberMissions);
-        const formattedMemberMissions = memberMissions.map(memberMission => ({
-            ...memberMission,
-            id: memberMission.id.toString(),
-            member: {
-                ...memberMission.member,
-                id: memberMission.member.id.toString(),
-                points: memberMission.member.points.toString(),  
-            },
-            mission: {
-                ...memberMission.mission,
-                id: memberMission.mission.id.toString(),              
-            },
-        }));
-        return formattedMemberMissions;
+            data: {
+                name: data.name,
+                nickname: data.nickname,
+                gender: data.gender,
+                birth: data.birth,
+                location: data.location,
+                phoneNumber: data.phoneNumber
+            }
+        });
+        return memberUpdated;
     }
     catch(err){
         throw new ServerError(`서버 내부 오류: ${err.stack}`);

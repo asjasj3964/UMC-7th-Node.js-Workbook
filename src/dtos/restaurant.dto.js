@@ -1,7 +1,6 @@
 // restaurant 요청 DTO
 export const bodyToRestaurant = (body) => {
     return {
-        ceoId: body.ceoId,
         regionId: body.regionId,
         name: body.name,
         introduction: body.introduction,

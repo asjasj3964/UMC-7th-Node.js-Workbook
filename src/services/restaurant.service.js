@@ -1,6 +1,5 @@
-import { addRestaurant, getRestaurant, getRestaurantFoodKindByRestaurantId, setRestaurantFoodKind } from "../repositories/restaurant.repository.js";
+import { addRestaurant, getRestaurant, getRestaurantFoodKindByRestaurantId, setRestaurantFoodKind, getAllRestaurantReviews, getAllRestaurantMissions } from "../repositories/restaurant.repository.js";
 import { responseFromReviews } from '../dtos/review.dto.js';
-import { getAllRestaurantReviews, getAllRestaurantMissions } from '../repositories/restaurant.repository.js';
 import { responseFromMissions } from '../dtos/mission.dto.js';
 import { responseFromRestaurant } from '../dtos/restaurant.dto.js';
 import { DuplicateError, NotExistError } from "../errors.js";
@@ -8,9 +7,9 @@ import { getRegion } from "../repositories/region.repository.js";
 import { getMember } from "../repositories/member.repository.js";
 import { getFoodKind } from "../repositories/foodkind.repository.js";
 
-export const restaurantRegist = async(data) => {
+export const restaurantRegist = async(memberId, data) => {
     // 해당 CEO가 등록되어있지 않을 경우 에러 처리
-    const ceo = await getMember(data.ceoId);
+    const ceo = await getMember(memberId);
     if (ceo === null){
         throw new NotExistError("존재하지 않는 CEO", data); // 동일한 식당을 등록하는 것을 방지
     }
@@ -27,7 +26,7 @@ export const restaurantRegist = async(data) => {
         }
     }
     const registRestaurantId = await addRestaurant({
-        ceo: data.ceoId,
+        ceo: memberId,
         region: data.regionId,
         name: data.name,
         introduction: data.introduction,

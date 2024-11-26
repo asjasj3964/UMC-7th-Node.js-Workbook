@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
-import { bodyToMember } from "../dtos/member.dto.js";
-import { memberSignUp } from "../services/member.service.js"
-import { listMemberReviews, listMemberMissions } from "../services/member.service.js";
+import { bodyToMember, bodyToUpdateMember } from "../dtos/member.dto.js";
+import { memberSignUp, memberUpdate } from "../services/member.service.js"
 
 // 회원 등록 핸들러
 export const handleMemberSignUp = async(req, res, next) => {
@@ -84,71 +83,32 @@ export const handleMemberSignUp = async(req, res, next) => {
     // HTTP 응답 반환, JSON 형식의 member 객체를 클라이언트에 전달
 }   
 
-// 특정 회원 모든 리뷰 조회
-export const handleListMemberReviews = async(req, res, next) => {
+// 회원 정보 수정 핸들러
+export const handleMemberUpdate = async(req, res, next) => {
     /*
-    #swagger.ignore = false
     #swagger.tags = ['member-controller']
-    #swagger.summary = "회원의 리뷰 목록 조회 API";
-    #swagger.description = '회원의 리뷰 목록 조회 API입니다.'
-    #swagger.parameters['memberId'] = {
-        $ref: "#/components/parameters/MemberIdParam"
-    }
-    #swagger.parameters['cursor'] = {
-        $ref: "#/components/parameters/CursorParam"
-    }
-    #swagger.responses[200] = {
-        description: "미션 목록 조회 성공 응답",
+    #swagger.summary = '회원 정보 수정 API';
+    #swagger.description = '회원 정보 수정 API입니다.'
+    #swagger.requestBody = {
+        required: true,
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/responses/ReviewListSuccessResponse"
+                    type: "object",
+                    properties: {
+                        name: { type: "string" },
+                        nickname: { type: "string" },
+                        gender: { type: "number" },
+                        birth: { type: "string", example: "2000-04-24" },
+                        location: { type: "string" },
+                        phoneNumber: { type: "string", example: "010-0000-0000" },
+                    }
                 }
             }
         }
-    }
-    #swagger.responses[500] = {
-        description: "미션 목록 조회 실패 응답",
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/responses/NotFoundErrorResponse"
-                },
-                examples: {
-                    "존재하지 않는 회원": {
-                        $ref: "#/components/examples/MemberNotFoundErrorExample"
-                    }, 
-                    "서버 내부 오류": {
-                        $ref: "#/components/examples/ServerErrorExample"
-                    } 
-                }
-            }
-        }
-    }
-    */
-    const reviews = await listMemberReviews(
-        parseInt(req.params.memberId),
-        typeof req.query.cursor === "string"? parseInt(req.query.cursor) : 0
-        // cursor(Query Parameter)가 문자열이라면 parseInt로 정수로 변환, 그렇지 않으면 기본값 0
-    )
-    res.status(StatusCodes.OK).success(reviews);
-}
-
-// 특정 회원의 진행 중인 모든 미션 조회
-export const handleListMemberMission = async(req, res, next) => {
-    /*
-    #swagger.ignore = false
-    #swagger.tags = ['member-controller']
-    #swagger.summary = "회원의 진행 중인 미션 목록 조회 API";
-    #swagger.description = '회원의 진행 중인 미션 목록 조회 API입니다.'
-    #swagger.parameters['memberId'] = {
-        $ref: "#/components/parameters/MemberIdParam"
-    }
-    #swagger.parameters['cursor'] = {
-        $ref: "#/components/parameters/CursorParam"
-    }
+    };
     #swagger.responses[200] = {
-        description: "미션 목록 조회 성공 응답",
+        description: "회원 정보 수정 성공 응답",
         content: {
             "application/json": {
                 schema: {
@@ -159,24 +119,22 @@ export const handleListMemberMission = async(req, res, next) => {
                         success: {
                             type: "object",
                             properties: {
-                                data: {
-                                    type: "array",
-                                    items: {
-                                        $ref: "#/components/responses/MissionSuccessResponse/properties/success",
-                                    }
-                                },
-                                pagination: {
-                                    $ref: "#/components/schemas/PaginationSchema"
-                                }     
+                                name: { type: "string" },
+                                nickname: { type: "string" },
+                                gender: { type: "number" },
+                                birth: { type: "string", example: "2000-04-24" },
+                                location: { type: "string" },
+                                email: { type: "string" },
+                                phoneNumber: { type: "string", example: "010-0000-0000" },
                             }
-                        }
+                        }   
                     }
                 }
             }
         }
     };
     #swagger.responses[500] = {
-        description: "미션 목록 조회 실패 응답",
+        description: "회원 정보 수정 실패 응답",
         content: {
             "application/json": {
                 schema: {
@@ -192,11 +150,9 @@ export const handleListMemberMission = async(req, res, next) => {
                 }
             }
         }
-    }
+    };
     */
-    const missions = await listMemberMissions(
-        parseInt(req.params.memberId),
-        typeof req.query.cursor === "string"? parseInt(req.query.cursor) : 0
-    )
-    res.status(StatusCodes.OK).success(missions);
+    const memberId = req.user.id;
+    const member = await memberUpdate(memberId, bodyToUpdateMember(req.body));
+    res.status(StatusCodes.OK).success(member);
 }

@@ -3,25 +3,28 @@
 import express from 'express'; // ES Module
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { handleMemberSignUp, handleListMemberReviews, handleListMemberMission } from "./controllers/member.controller.js";
-import { handleMemberMissionRegist } from './controllers/participated-mission.controller.js';
+import { handleMemberSignUp, handleMemberUpdate } from "./controllers/member.controller.js";
+import { handleMemberMissionRegist, handleListMemberMission } from './controllers/participated-mission.controller.js';
 import { handleRestaurantRegist, handleListRestaurantReviews, handleListRestaurantMissions } from './controllers/restaurant.controller.js';
-import { handleReviewRegist } from './controllers/review.controller.js';
+import { handleReviewRegist, handleListReviews } from './controllers/review.controller.js';
 import { handleMissionRegist } from './controllers/mission.controller.js';
 import { handleMissionUpdateCompleted } from './controllers/participated-mission.controller.js';
 import swaggerAutogen from 'swagger-autogen';
 import swaggerUiExpress from "swagger-ui-express"
 import passport from 'passport';
-import { googleStrategy } from './auth.config.js';
+import { googleStrategy, kakaoStrategy, naverStrategy } from './auth.config.js';
 import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { prisma } from "./db.config.js";
+import { handleFavoriteFoodKindUpdate } from './controllers/favortie-foodkind.controller.js';
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
 passport.use(googleStrategy); // passport 라이브러리에 정의한 로그인 방식 등록
-passport.serializeUser((member, done) => done(null, member)); // 세션에 회원 정보 저장
-passport.deserializeUser((member, done) => done(null, member)); // 세션의 정보 가져옴
+passport.use(kakaoStrategy);
+passport.use(naverStrategy);
+passport.serializeUser((member, done) => done(null, member)); // 세션에 회원 정보(member) 저장
+passport.deserializeUser((member, done) => done(null, member)); // 세션의 정보(member)를 가져와 req.user에 할당
 
 const app = express();
 // const port = 3000 // 서버 실행 포트를 3000번으로 지정
@@ -350,8 +353,8 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize()); // Passport의 기본적인 인증 로직 활성화
+app.use(passport.session()); // 세션 기반 인증 상태 유지, 세션에서 사용자 데이터를 복원하여 req.user에 할당
 
 const myLogger = (req, res, next) => {
   console.log("LOGGED"); // 다음 미들웨어나 라우트 핸들러로 제어를 넘긴다. 
@@ -365,6 +368,26 @@ app.get(
   "/oauth2/callback/google",
   passport.authenticate("google", {
     failureRedirect: "/oauth2/login/google",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);
+
+app.get("/oauth2/login/kakao", passport.authenticate("kakao"));
+app.get(
+  "/oauth2/callback/kakao",
+  passport.authenticate("kakao", {
+    failureRedirect: "/oauth2/login/kakao",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);
+
+app.get("/oauth2/login/naver", passport.authenticate("naver"));
+app.get(
+  "/oauth2/callback/naver",
+  passport.authenticate("naver", {
+    failureRedirect: "/oauth2/login/naver",
     failureMessage: true,
   }),
   (req, res) => res.redirect("/")
@@ -406,17 +429,21 @@ app.post("/participated-missions", handleMemberMissionRegist);
 app.get("/restaurants/:restaurantId/reviews", handleListRestaurantReviews);
 // curl.exe -X GET "http://localhost:3001/restaurants/1/reviews?cursor=5" 
 
-app.get("/members/:memberId/reviews", handleListMemberReviews);
+app.get("/reviews", handleListReviews);
 // curl.exe -X GET "http://localhost:3001/members/1/reviews?cursor=5" 
 
 app.get("/restaurants/:restaurantId/missions", handleListRestaurantMissions);
 // curl.exe -X GET "http://localhost:3001/restaurants/1/missions?cursor=5" 
 
-app.get("/members/:memberId/participated-missions", handleListMemberMission);
+app.get("/participated-missions", handleListMemberMission);
 // curl.exe -X GET "http://localhost:3001/members/1/participated-missions?cursor=5"
 
 app.patch("/participated-missions/:participatedMissionId", handleMissionUpdateCompleted);
 // curl.exe -X PATCH "http://localhost:3001/members/1/participated-missions/1"
+
+app.patch("/members", handleMemberUpdate);
+
+app.patch("/favorite-foodkinds", handleFavoriteFoodKindUpdate);
 
 // 전역 오류를 처리하기 위한 미들웨어
 app.use((err, req, res, next) => {
