@@ -84,6 +84,7 @@ export const getAllReviews = async(memberId, cursor) => {
     }
 }
 
+// 나의 정보 업데이트
 export const updateMember = async(memberId, data) => {
     try{
         const memberUpdated = await prisma.member.update({

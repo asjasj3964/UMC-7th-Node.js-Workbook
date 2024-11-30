@@ -20,10 +20,10 @@ import { handleFavoriteFoodKindUpdate } from './controllers/favortie-foodkind.co
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
-passport.use(googleStrategy); // passport 라이브러리에 정의한 로그인 방식 등록
+passport.use(googleStrategy); // 정의한 google 로그인 전략을 passport에 등록
 passport.use(kakaoStrategy);
 passport.use(naverStrategy);
-passport.serializeUser((member, done) => done(null, member)); // 세션에 회원 정보(member) 저장
+passport.serializeUser((member, done) => done(null, member)); // 인증 성공 후 세션에 회원 정보(member) 저장, done(에러, 세션에 저장할 데이터)
 passport.deserializeUser((member, done) => done(null, member)); // 세션의 정보(member)를 가져와 req.user에 할당
 
 const app = express();
@@ -338,17 +338,17 @@ app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 
 app.use(
-  session({
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+  session({ // 세션을 설정하고 관리하기 위해 사용하는 미들웨어
+    cookie: { // client 브라우저에 저장되는 세션 쿠키의 설정
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms, 쿠키의 유효기간 (7일)
     },
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.EXPRESS_SESSION_SECRET,
-    store: new PrismaSessionStore(prisma, {
-      checkPeriod: 2 * 60 * 1000, // ms
-      dbRecordIdIsSessionId: true,
-      dbRecordIdFunction: undefined,
+    resave: false, // 세션 데이터가 변경된 경우에만 저장한다.
+    saveUninitialized: false, // 초기화되지 않은 세션은 저장되지 않는다.
+    secret: process.env.EXPRESS_SESSION_SECRET, // 세션 쿠키 암호화에 사용되는 비밀 키
+    store: new PrismaSessionStore(prisma, { // 세션 데이터를 저장하는 저장소 (Session 모델, 테이블)
+      checkPeriod: 2 * 60 * 1000, // ms, 세션 DB에서 오래된 세션을 정리하는 주기 (2일)
+      dbRecordIdIsSessionId: true, // 세션 ID를 기본 키로 사용
+      dbRecordIdFunction: undefined, // 세션 ID를 커스텀 방식으로 생성 시 함수로 제공 (undefined)
     }),
   })
 );
@@ -363,14 +363,14 @@ const myLogger = (req, res, next) => {
 
 app.use(myLogger); // myLogger 미들웨어가 실행되도록 등록한다.
 
-app.get("/oauth2/login/google", passport.authenticate("google"));
-app.get(
-  "/oauth2/callback/google",
-  passport.authenticate("google", {
-    failureRedirect: "/oauth2/login/google",
-    failureMessage: true,
+app.get("/oauth2/login/google", passport.authenticate("google")); // Google 로그인 시작 시 접근하는 엔드포인트, GoogleStrategy를 호출해 인증 프로세스 시작
+app.get( 
+  "/oauth2/callback/google", // Google 인증 후 사용자 정보가 반환되는 콜백 URL
+  passport.authenticate("google", { // Google에서 인증 결과를 받아 처리한다.
+    failureRedirect: "/oauth2/login/google", // 인증 실패 시 로그인 페이지로 리디렉션 (로그인 재시도)
+    failureMessage: true, // 인증 실패 시 실패 메시지를 세션에 저장한다.
   }),
-  (req, res) => res.redirect("/")
+  (req, res) => res.redirect("/") // 인증 성공 후엔 / 경로로 리디렉션
 );
 
 app.get("/oauth2/login/kakao", passport.authenticate("kakao"));
