@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToMemberMission } from "../dtos/participated-mission.dto.js";
 import { memberMissionRegist, memberMissionUpdateCompleted, listMemberMissions } from "../services/participated-mission.service.js";
+import { NotExistError } from "../errors.js";
 
 // 참여 미션 등록 핸들러
 export const handleMemberMissionRegist = async(req, res, next) => {
@@ -81,6 +82,9 @@ export const handleMemberMissionRegist = async(req, res, next) => {
     */
     console.log("특정 회원에게 미션 할당");
     console.log("body: ", req.body); // 값이 잘 들어오는지 테스트
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const memberMission = await memberMissionRegist(memberId, bodyToMemberMission(req.body)); // 요청 데이터를 DTO로 변환 (member 객체 생성)
     res.status(StatusCodes.OK).success(memberMission); // 성공 공통 응답 전달
@@ -171,6 +175,9 @@ export const handleMissionUpdateCompleted = async(req, res, next) => {
         }
     };
     */
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const missions = await memberMissionUpdateCompleted(
         memberId,
@@ -236,6 +243,9 @@ export const handleListMemberMission = async(req, res, next) => {
         }
     }
     */
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     console.log("req.user.id: ", req.user.id);
     const memberId = req.user.id;
     const missions = await listMemberMissions(

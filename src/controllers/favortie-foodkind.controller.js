@@ -62,6 +62,9 @@ export const handleFavoriteFoodKindUpdate = async(req, res, next) => {
         }
     };
     */
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const foodKind = await favoriteFoodKindUpdate(memberId, bodyToFavoriteFoodKind(req.body));
     res.status(StatusCodes.OK).success(foodKind);

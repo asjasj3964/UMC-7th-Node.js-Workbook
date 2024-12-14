@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToReview } from "../dtos/review.dto.js";
 import { reviewRegist, listReviews } from "../services/review.service.js"
+import { NotExistError } from "../errors.js";
 
 // 리뷰 등록 핸들러
 export const handleReviewRegist = async(req, res, next) => {
@@ -73,6 +74,9 @@ export const handleReviewRegist = async(req, res, next) => {
     */
     console.log("리뷰 등록");
     console.log("body: ", req.body);
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const review = await reviewRegist(memberId, bodyToReview(req.body));
     res.status(StatusCodes.OK).success(review)
@@ -117,6 +121,9 @@ export const handleListReviews = async(req, res, next) => {
         }
     }
     */
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const reviews = await listReviews(
         //parseInt(req.params.memberId),

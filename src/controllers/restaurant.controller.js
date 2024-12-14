@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { bodyToRestaurant } from "../dtos/restaurant.dto.js";
 import { restaurantRegist } from "../services/restaurant.service.js"
 import { listRestaurantReviews, listRestaurantMissions } from "../services/restaurant.service.js";
+import { NotExistError } from "../errors.js";
 
 // 식당 등록 핸들러
 export const handleRestaurantRegist = async(req, res, next) => {
@@ -114,6 +115,9 @@ export const handleRestaurantRegist = async(req, res, next) => {
     */
     console.log("식당 등록");
     console.log("body: ", req.body);
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const restaurant = await restaurantRegist(memberId, bodyToRestaurant(req.body));
     res.status(StatusCodes.OK).success(restaurant);

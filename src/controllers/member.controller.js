@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToMember, bodyToUpdateMember } from "../dtos/member.dto.js";
 import { memberSignUp, memberUpdate } from "../services/member.service.js"
+import { NotExistError } from "../errors.js";
 
 // 회원 등록 핸들러
 export const handleMemberSignUp = async(req, res, next) => {
@@ -152,6 +153,9 @@ export const handleMemberUpdate = async(req, res, next) => {
         }
     };
     */
+    if (!req.user) {
+        throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
+    }
     const memberId = req.user.id;
     const member = await memberUpdate(memberId, bodyToUpdateMember(req.body));
     res.status(StatusCodes.OK).success(member);
