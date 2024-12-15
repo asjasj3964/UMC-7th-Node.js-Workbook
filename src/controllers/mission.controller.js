@@ -19,8 +19,7 @@ export const handleMissionRegist = async(req, res, next) => {
                         name: { type: "string" },
                         introduction: { type: "string" },
                         deadline: { type: "string", format: "date-time", example: "2025-02-01T00:00:00Z" },
-                        points: { type: "number", example: 100 },
-                        status: { type: "number", example: 0 }
+                        points: { type: "number", example: 100 }
                     }
                 }
             }

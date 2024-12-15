@@ -7,7 +7,6 @@ export const bodyToMission = (body) => {
         introduction: body.introduction,
         deadline: body.deadline,
         points: body.points,
-        status: body.status
     };
 };
 
