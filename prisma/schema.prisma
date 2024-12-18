@@ -1,0 +1,280 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id String @id
+  sid String @unique
+  data String @db.VarChar(512)
+  expiresAt DateTime @map("expires_at")
+  @@map("session")
+}
+
+model Member{
+  id BigInt @id @default(autoincrement())
+  name String @map("member_name") @db.VarChar(30)
+  email String @unique(map: "email") @db.VarChar(50)
+  location String @map("location_address")
+  phoneNumber String @map("phone_number") @db.VarChar(15)
+  nickname String @db.VarChar(30)
+  gender Int
+  birth DateTime @db.Date
+  points BigInt @default(0)
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+  inactiveAt DateTime? @map("inactive_at") @db.Timestamp(6)
+  
+  memberfavoriteFoodKinds MemberFavoriteFoodKind[]
+  restaurants Restaurant[]
+  memberMissions MemberMission[]
+  reviews Review[]
+  reply Reply[]
+  inquiries Inquiry[]
+  alarms Alarm[]
+
+  @@map("member")
+}
+
+model FoodKind {
+  id BigInt @id @default(autoincrement())
+  kind String @db.VarChar(10)
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  memberfavoriteFoodKinds MemberFavoriteFoodKind[]
+  foodKindRestaurants FoodKindRestaurant[]  
+  @@map("food_kind")
+}
+
+model MemberFavoriteFoodKind{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  foodKind FoodKind @relation(fields: [foodKindId], references: [id])
+  foodKindId BigInt @map("food_kind_id")
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  @@index([foodKindId], map: "food_kind_id")
+  @@index([memberId], map: "member_id")
+  @@map("member_food_kind")
+}
+
+model Region{
+  id BigInt @id @default(autoincrement())
+  address String 
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  restaurant Restaurant[]
+
+  @@map("region")
+}
+
+model Restaurant{
+  id BigInt @id @default(autoincrement())
+  ceo Member @relation(fields: [ceoId], references: [id])
+  ceoId BigInt @map("ceo_id")
+  region Region @relation(fields: [regionId], references: [id])
+  regionId BigInt @map("region_id")
+  name String @map("restaurant_name") @db.VarChar(30)
+  introduction String 
+  startTime String @map("start_time") @db.VarChar(8)
+  endTime String @map("end_time") @db.VarChar(8)
+  totalRating Decimal @map("total_rating") @db.Decimal(2, 1) @default(0.0)
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+  
+  missions Mission[]
+  foodKindRestaurants FoodKindRestaurant[]
+  reviews Review[]
+  images Image[]
+  @@index([ceoId], map: "ceo_id")
+  @@index([regionId], map: "region_id")
+
+  @@map("restaurant")
+}
+
+model Mission{
+  id BigInt @id @default(autoincrement())
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId BigInt @map("restaurant_id")
+  name String @map("mission_name") @db.VarChar(30)
+  introduction String
+  deadline DateTime 
+  points Int
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(0)  
+  
+  memberMission MemberMission[]
+
+  @@index([restaurantId], map: "restaurant_id")
+
+  @@map("mission")
+}
+
+model MemberMission{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  mission Mission @relation(fields: [missionId], references: [id])
+  missionId BigInt @map("mission_id")
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(0)  
+
+  @@unique([memberId, missionId], name: "memberId_missionId_unique")
+  @@index([memberId], map: "member_id")
+  @@index([missionId], map: "mission_id")
+
+  @@map("member_mission")
+}
+
+
+model FoodKindRestaurant {
+  id BigInt @id @default(autoincrement())
+  foodKind FoodKind @relation(fields: [foodKindId], references: [id])
+  foodKindId BigInt @map("food_kind_id")
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId BigInt @map("restaurant_id")
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)  
+  @@index([foodKindId], map: "food_kind_id")
+  @@index([restaurantId], map: "restaurant_id")
+  @@map("food_kind_restaurant")
+}
+
+model Review{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId BigInt @map("restaurant_id")  
+  rating Decimal @db.Decimal(2, 1) @default(0.0)
+  content String
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)  
+
+  replys Reply[]
+  images Image[]
+
+  @@index([memberId], map: "member_id")
+  @@index([restaurantId], map: "restaurant_id")
+  @@map("review")
+}
+
+model Reply{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  review Review @relation(fields: [reviewId], references: [id])
+  reviewId BigInt @map("review_id")
+  content String
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)    
+  @@index([memberId], map: "member_id")
+  @@index([reviewId], map: "review_id")
+  @@map("reply")
+}
+
+model Inquiry{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  title String @db.VarChar(30)
+  content String
+  isConfirmed Int @map("is_conformed") @default(0)
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  images Image[]
+
+  @@index([memberId], map: "member_id")
+  @@map("inquiry")
+}
+model Image{
+  id BigInt @id @default(autoincrement())
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId BigInt? @map("restaurant_id")  
+  review Review? @relation(fields: [reviewId], references: [id])
+  reviewId BigInt? @map("review_id")
+  inquiry Inquiry? @relation(fields: [inquiryId], references: [id])
+  inquiryId BigInt? @map("inquiry_id")
+  imageUrl String @map("image_url")
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  @@index([restaurantId], map: "restaurant_id")
+  @@index([reviewId], map: "review_id")
+  @@index([inquiryId], map: "inquiry_id")
+
+  @@map("image")
+}
+
+model Alarm{
+  id BigInt @id @default(autoincrement())
+  member Member @relation(fields: [memberId], references: [id])
+  memberId BigInt @map("member_id")
+  isConfirmed Int @map("is_conformed") @default(0)
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  alarmsNewMissions AlarmNewMission[]
+  alarmReviewRequest AlarmReviewRequest[]
+  @@index([memberId], map: "member_id")
+
+  @@map("alarm")
+}
+
+model AlarmNewMission{
+  id BigInt @id @default(autoincrement())
+  alarm Alarm @relation(fields: [alarmId], references: [id])
+  alarmId BigInt @map("alarm_id")
+  title String @db.VarChar(30)
+  body String
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  @@index([alarmId], map: "alarm_id")
+
+  @@map("alarm_new_mission")
+}
+
+model AlarmReviewRequest{
+  id BigInt @id @default(autoincrement())
+  alarm Alarm @relation(fields: [alarmId], references: [id])
+  alarmId BigInt @map("alarm_id")
+  title String @db.VarChar(30)
+  body String
+  createdAt DateTime @map("created_at") @db.Timestamp(6) @default(now()) 
+  updatedAt DateTime @map("updated_at") @db.Timestamp(6) @default(now())
+  status Int @default(1)
+
+  @@index([alarmId], map: "alarm_id")
+
+  @@map("alarm_review_request")
+}
