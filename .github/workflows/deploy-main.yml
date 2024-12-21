@@ -39,7 +39,7 @@ jobs:
             
             - name: Install dependencies
               run: |
-                ssh UMC-7th-Wenty 'npm install --prefix /opt/app'
+                ssh UMC-7th-Wenty 'npm install --prefix /opt/app/'
             
             - name: Copy systemd service file
               run: |
