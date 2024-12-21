@@ -20,7 +20,7 @@ jobs:
                 chmod 600 ~/.ssh/id_rsa
 
                 cat >>~/.ssh/config <<END
-                Host UMC-7th-Wenty
+                Host UMC-7th-Nodejs-Wenty
                     HostName $EC2_HOST
                     User $EC2_USER
                     IdentityFile ~/.ssh/id_rsa
@@ -33,17 +33,17 @@ jobs:
             
             - name: Copy Workspace
               run: |
-                ssh UMC-7th-Wenty 'sudo mkdir -p /opt/app'
-                ssh UMC-7th-Wenty 'sudo chown ubuntu:ubuntu /opt/app'
-                scp -r ./[!.]* UMC-7th-Wenty:/opt/app
+                ssh UMC-7th-Nodejs-Wenty 'sudo mkdir -p /opt/app'
+                ssh UMC-7th-Nodejs-Wenty 'sudo chown ubuntu:ubuntu /opt/app'
+                scp -r ./[!.]* UMC-7th-Nodejs-Wenty:/opt/app
             
             - name: Install dependencies
               run: |
-                ssh UMC-7th-Wenty 'npm install --prefix /opt/app/'
+                ssh UMC-7th-Nodejs-Wenty 'npm install --prefix /opt/app/'
             
             - name: Copy systemd service file
               run: |
-                ssh UMC-7th-Wenty '
+                ssh UMC-7th-Nodejs-Wenty '
                     echo "[Unit]
                     Description=UMC 7th Node.js Project
                     After=network.target
@@ -59,9 +59,9 @@ jobs:
 
             - name: Enable systemd service
               run: |
-                ssh UMC-7th-Wenty 'sudo systemctl daemon-reload'
-                ssh UMC-7th-Wenty 'sudo systemctl enable app'
+                ssh UMC-7th-Nodejs-Wenty 'sudo systemctl daemon-reload'
+                ssh UMC-7th-Nodejs-Wenty 'sudo systemctl enable app'
             
             - name: Restart systemd service
               run: |
-                ssh UMC-7th-Wenty 'sudo systemctl restart app'
+                ssh UMC-7th-Nodejs-Wenty 'sudo systemctl restart app'
