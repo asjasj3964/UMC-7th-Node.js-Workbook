@@ -54,7 +54,7 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    host: "localhost:3001", // API가 실행되는 서버의 호스트 정보
+    host: "localhost:3000", // API가 실행되는 서버의 호스트 정보
     components: { // 공통적으로 사용되는 스키마 정의
       responses: { // 응답 
         NotFoundErrorResponse: { // Not Found 에러 응답 
@@ -406,7 +406,7 @@ app.get('/', (req, res) => {
 })
 
 app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내면 핸들러 함수가 실행된다. 
-// curl.exe -X POST "http://localhost:3001/members" -H "Content-Type: application/json" -d '{\"name\":\"안성진\",\"nickname\":\"웬티\",\"gender\":2,\"birth\": \"2000-04-24\",\"location\": \"위치\",\"email\": \"이메일4\",\"phoneNumber\": \"010-0000-0000\", \"favoriteFoodKinds\": [1, 5, 6] }'
+// curl.exe -X POST "http://localhost:3000/members" -H "Content-Type: application/json" -d '{\"name\":\"안성진\",\"nickname\":\"웬티\",\"gender\":2,\"birth\": \"2000-04-24\",\"location\": \"위치\",\"email\": \"이메일4\",\"phoneNumber\": \"010-0000-0000\", \"favoriteFoodKinds\": [1, 5, 6] }'
 
 // app.post("/members", (req, res) => {
 //   console.log("라우트 도달");
@@ -415,31 +415,31 @@ app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내
 // });
 
 app.post("/restaurants", handleRestaurantRegist);
-// curl.exe -X POST "http://localhost:3001/restaurants" -H "Content-Type: application/json" -d '{\"ceo\": 1,\"region\": 2,\"name\": \"종로닭한마리\",\"introduction\": \"닭볶음탕 전문문\",\"startTime\": \"09:00:00\",\"endTime\": \"18:00:00\"}'
+// curl.exe -X POST "http://localhost:3000/restaurants" -H "Content-Type: application/json" -d '{\"ceo\": 1,\"region\": 2,\"name\": \"종로닭한마리\",\"introduction\": \"닭볶음탕 전문문\",\"startTime\": \"09:00:00\",\"endTime\": \"18:00:00\"}'
 
 app.post("/reviews", handleReviewRegist);
-// curl.exe -X POST "http://localhost:3001/reviews" -H "Content-Type: application/json" -d '{\"member\": 1, \"restaurant\":11, \"rating\": 3.0, \"content\": \"사장님이 친절해요\"}'
+// curl.exe -X POST "http://localhost:3000/reviews" -H "Content-Type: application/json" -d '{\"member\": 1, \"restaurant\":11, \"rating\": 3.0, \"content\": \"사장님이 친절해요\"}'
 
 app.post("/missions", handleMissionRegist);
-// curl.exe -X POST "http://localhost:3001/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'
+// curl.exe -X POST "http://localhost:3000/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'
 
 app.post("/participated-missions", handleMemberMissionRegist);
-// curl.exe -X POST "http://localhost:3001/participated-missions" -H "Content-Type: application/json" -d '{\"memberId\": 1, \"missionId\": 3}' 
+// curl.exe -X POST "http://localhost:3000/participated-missions" -H "Content-Type: application/json" -d '{\"memberId\": 1, \"missionId\": 3}' 
 
 app.get("/restaurants/:restaurantId/reviews", handleListRestaurantReviews);
-// curl.exe -X GET "http://localhost:3001/restaurants/1/reviews?cursor=5" 
+// curl.exe -X GET "http://localhost:3000/restaurants/1/reviews?cursor=5" 
 
 app.get("/reviews", handleListReviews);
-// curl.exe -X GET "http://localhost:3001/members/1/reviews?cursor=5" 
+// curl.exe -X GET "http://localhost:3000/members/1/reviews?cursor=5" 
 
 app.get("/restaurants/:restaurantId/missions", handleListRestaurantMissions);
-// curl.exe -X GET "http://localhost:3001/restaurants/1/missions?cursor=5" 
+// curl.exe -X GET "http://localhost:3000/restaurants/1/missions?cursor=5" 
 
 app.get("/participated-missions", handleListMemberMission);
-// curl.exe -X GET "http://localhost:3001/members/1/participated-missions?cursor=5"
+// curl.exe -X GET "http://localhost:3000/members/1/participated-missions?cursor=5"
 
 app.patch("/participated-missions/:participatedMissionId", handleMissionUpdateCompleted);
-// curl.exe -X PATCH "http://localhost:3001/members/1/participated-missions/1"
+// curl.exe -X PATCH "http://localhost:3000/members/1/participated-missions/1"
 
 app.patch("/members", handleMemberUpdate);
 
