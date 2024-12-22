@@ -9,7 +9,7 @@ export const googleStrategy = new GoogleStrategy(
     {
         clientID: process.env.PASSPORT_GOOGLE_CLIENT_ID,
         clientSecret: process.env.PASSPORT_GOOGLE_CLIENT_SECRET, // .env에서 환경변수로 가져온다.
-        callbackURL: "http://localhost:3000/oauth2/callback/google", // Google OAuth 2.0 인증 후 리디렉션될 URL
+        callbackURL: "http://localhost:3000/oauth2/callback/google" || process.env.GOOGLE_REDIRECT_URI, // Google OAuth 2.0 인증 후 리디렉션될 URL
         scope: ["email", "profile"], // 인증 과정에서 요청할 사용자 정보의 범위: 이메일, 프로필 정보
         state: true, // CSRF 공격(Cross-Site Request Forgery, 사용자가 의도하지 않은 요청을 서버에 보내게 만드는 공격)을 방지하기 위함
     },
@@ -51,7 +51,7 @@ const googleVerify = async(profile) => {
 export const kakaoStrategy = new KakaoStrategy(
     {
         clientID: process.env.PASSPORT_KAKAO_CLIENT_ID,
-        callbackURL: "http://localhost:3000/oauth2/callback/kakao",
+        callbackURL: "http://localhost:3000/oauth2/callback/kakao" || process.env.KAKAO_REDIRECT_URI,
         scope: ["account_email"],
         state: true,
     },
@@ -91,7 +91,7 @@ export const naverStrategy = new NaverStrategy(
     {
         clientID: process.env.PASSPORT_NAVER_CLIENT_ID,
         clientSecret: process.env.PASSPORT_NAVER_CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/oauth2/callback/naver",
+        callbackURL: "http://localhost:3000/oauth2/callback/naver" || process.env.NAVER_REDIRECT_URI,
         scope: ["email"],
         state: true,
     },
