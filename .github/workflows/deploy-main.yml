@@ -13,6 +13,13 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            - name: Check prisma has changes # prisma 폴더의 파일의 변경사항이 있는지 검사한다.
+              uses: dorny/paths-filter@v3
+              id: paths-filter
+              with:
+                filters: |
+                  prisma: ["prisma/**"]
+
             - name: Configure SSH
               run: |
                 mkdir -p ~/.ssh
@@ -39,10 +46,16 @@ jobs:
             
             - name: Install dependencies
               run: |
-                ssh UMC-7th-Nodejs-Wenty 'npm install --prefix /opt/app/'
-            
-            - name: Copy systemd service file
+                ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm install'
+                ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm exec prisma generate'
+
+            - name: Apply prisma migrations # steps.paths-filter.outputs.prisma를 통해 prisma 폴더의 파일의 변경 사항이 있다면 EC2 서버에 추가적으로 DB Migrate를 실행한다. 
+              if: steps.paths-filter.outputs.prisma == 'true' 
               run: |
+                ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm exec prisma migrate deploy'
+
+            - name: Copy systemd service file
+              run: | 
                 ssh UMC-7th-Nodejs-Wenty '
                     echo "[Unit]
                     Description=UMC 7th Node.js Project
@@ -50,7 +63,7 @@ jobs:
                     
                     [Service]
                     User=${USER}
-                    ExecStart=/usr/bin/npm run dev --prefix /opt/app/
+                    ExecStart=/usr/bin/npm run start --prefix /opt/app/
                     Restart=always
                     
                     [Install]
