@@ -36,7 +36,7 @@ const googleVerify = async(profile) => {
     const created = await prisma.member.create({ // 사용자가 존재하지 않을 시 기본값으로 사용자 정보를 자동 생성한다.
         data: {
             email,
-            name: profile.displayName,
+            name: profile.displayName || "추후 수정",
             nickname: "추후 수정",
             gender: 1,
             birth: new Date(2000, 4, 24),
@@ -75,7 +75,7 @@ const kakaoVerify = async(profile) => {
     const created = await prisma.member.create({ // 사용자가 존재하지 않을 시 기본값으로 사용자 정보를 자동 생성한다.
         data: {
             email,
-            name: profile.displayName,
+            name: profile.displayName || "추후 수정",
             nickname: "추후 수정",
             gender: 0,
             birth: new Date(2000, 4, 24),
@@ -116,7 +116,7 @@ const naverVerify = async(profile) => {
     const created = await prisma.member.create({
         data: {
             email,
-            name: profile.displayName,
+            name: profile.name || "추후 수정",
             nickname: "추후 수정",
             gender: 0,
             birth: new Date(2000, 4, 24),
