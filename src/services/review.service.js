@@ -4,7 +4,7 @@ import { NotExistError } from '../errors.js';
 import { getRestaurant } from '../repositories/restaurant.repository.js';
 import { getMember, getAllReviews } from '../repositories/member.repository.js';
 
-export const reviewRegist = async(memberId, data) => {
+export const reviewRegist = async(memberId, data, uploadedFiles) => {
     // 리뷰를 추가하려는 식당이 존재하는지 검증
     const restaurant = await getRestaurant(data.restaurantId);
     if (restaurant === null){ // 해당 식당이 존재하지 않다면
@@ -22,7 +22,7 @@ export const reviewRegist = async(memberId, data) => {
         content: data.content
     })
     const review = await getReview(registReviewId);
-    return responseFromReview(review);
+    return responseFromReview({ review, uploadedFiles });
 }
 
 // 레파지토리 호출 및 DTO로 변환
