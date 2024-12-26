@@ -23,7 +23,7 @@ export const handleReviewRegist = async(req, res, next) => {
                         restaurantId: { type: "number" },
                         rating: { type: "number", example: 3.5 },
                         content: { type: "string" },
-                        image: {
+                        images: {
                             type: "array",
                             items: {
                                 type: "string", format: "binary"
