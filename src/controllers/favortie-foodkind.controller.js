@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToFavoriteFoodKind } from "../dtos/favorite-foodkind.dto.js";
 import { favoriteFoodKindUpdate } from '../services/favorite-foodkind.service.js'
-
+ 
 export const handleFavoriteFoodKindUpdate = async(req, res, next) => {
     /*
     #swagger.tags = ['favorite-foodkind-controller']
