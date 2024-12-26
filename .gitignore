@@ -1,5 +1,5 @@
 # dependency directories
-node_mudules/
+node_modules/
 
 # detenv environment variable files
 .env

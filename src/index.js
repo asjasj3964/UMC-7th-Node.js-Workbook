@@ -17,6 +17,7 @@ import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { prisma } from "./db.config.js";
 import { handleFavoriteFoodKindUpdate } from './controllers/favortie-foodkind.controller.js';
+import { imageUploader } from './middleware/image.uploader.js';
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
@@ -417,7 +418,7 @@ app.post("/members", handleMemberSignUp); // 해당 URL로 POST 요청을 보내
 app.post("/restaurants", handleRestaurantRegist);
 // curl.exe -X POST "http://localhost:3000/restaurants" -H "Content-Type: application/json" -d '{\"ceo\": 1,\"region\": 2,\"name\": \"종로닭한마리\",\"introduction\": \"닭볶음탕 전문문\",\"startTime\": \"09:00:00\",\"endTime\": \"18:00:00\"}'
 
-app.post("/reviews", handleReviewRegist);
+app.post("/reviews", imageUploader.single('image'), handleReviewRegist);
 // curl.exe -X POST "http://localhost:3000/reviews" -H "Content-Type: application/json" -d '{\"member\": 1, \"restaurant\":11, \"rating\": 3.0, \"content\": \"사장님이 친절해요\"}'
 
 app.post("/missions", handleMissionRegist);

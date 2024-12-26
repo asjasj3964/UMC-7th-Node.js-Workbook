@@ -12,13 +12,17 @@ export const handleReviewRegist = async(req, res, next) => {
     #swagger.requestBody = {
         required: true,
         content: {
-            "application/json": {
+            "multipart/form-data": {
                 schema: {
                     type: "object",
+                    required: ['restaurantId', 'rating', 'content'],
                     properties: {
                         restaurantId: { type: "number" },
                         rating: { type: "number", example: 3.5 },
-                        content: { type: "string" }
+                        content: { type: "string" },
+                        image: {
+                            type: "string", format: "binary", description: "파일 업로드"
+                        }
                     }
                 }
             }
@@ -74,6 +78,7 @@ export const handleReviewRegist = async(req, res, next) => {
     */
     console.log("리뷰 등록");
     console.log("body: ", req.body);
+    console.log("files", req.file);
     if (!req.user) {
         throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
     }
