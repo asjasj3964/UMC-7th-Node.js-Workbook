@@ -9,6 +9,9 @@ export const handleReviewRegist = async(req, res, next) => {
     #swagger.tags = ['review-controller']
     #swagger.summary = '리뷰 등록 API';
     #swagger.description = '리뷰 등록 API입니다.'
+    #swagger.parameters['directory'] = {
+        $ref: "#/components/parameters/directoryParam"
+    }
     #swagger.requestBody = {
         required: true,
         content: {
