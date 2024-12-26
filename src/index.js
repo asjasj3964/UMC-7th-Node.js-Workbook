@@ -211,6 +211,14 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
             format: "int64"
           }
         },
+        directoryParam: { // 디렉토리 파라미터
+          name: "directory",
+          in: "query",
+          description: "S3 버킷 폴더 입력",
+          schema: {
+            type: "string",
+          }
+        },
         MemberIdParam: { // 회원 ID 파라미터
           name: "memberId",
           in: 'path',
