@@ -3,6 +3,7 @@ import { responseFromReview, responseFromReviews } from '../dtos/review.dto.js';
 import { NotExistError } from '../errors.js';
 import { getRestaurant } from '../repositories/restaurant.repository.js';
 import { getMember, getAllReviews } from '../repositories/member.repository.js';
+import { registImages } from '../repositories/image.repository.js';
 
 export const reviewRegist = async(memberId, data, uploadedFiles) => {
     // 리뷰를 추가하려는 식당이 존재하는지 검증
@@ -21,6 +22,7 @@ export const reviewRegist = async(memberId, data, uploadedFiles) => {
         rating: data.rating,
         content: data.content
     })
+    await registImages(registReviewId, uploadedFiles);
     const review = await getReview(registReviewId);
     return responseFromReview({ review, uploadedFiles });
 }
