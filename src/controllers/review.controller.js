@@ -90,7 +90,7 @@ export const handleReviewRegist = async(req, res, next) => {
         filename: file.originalname,
         location: file.location,
     }))
-    console.log("files", req.file);
+    console.log("files", req.files);
     if (!req.user) {
         throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);
     }
