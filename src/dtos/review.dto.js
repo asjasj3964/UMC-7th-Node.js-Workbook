@@ -35,6 +35,6 @@ export const responseFromReview = ({ review, uploadedFiles }) => {
         content: review.content,
         createdAt: review.createdAt,
         status: review.status,
-        images: uploadedFiles.map(uploadedFile => uploadedFile.filename)
+        images: uploadedFiles.map(uploadedFile => uploadedFile.location)
     }
 }
