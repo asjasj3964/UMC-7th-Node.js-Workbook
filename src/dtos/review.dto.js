@@ -27,6 +27,7 @@ export const responseFromReviews = (reviews) => {
 
 // review 응답 DTO
 export const responseFromReview = ({ review, uploadedFiles }) => {
+    console.log('uploadedFiles:', uploadedFiles);
     return {
         id: review.id,
         writer: review.member.name,
@@ -35,6 +36,12 @@ export const responseFromReview = ({ review, uploadedFiles }) => {
         content: review.content,
         createdAt: review.createdAt,
         status: review.status,
-        images: uploadedFiles.map(uploadedFile => uploadedFile.location)
+        images: uploadedFiles.map((uploadedFile) => uploadedFile)
+    }
+}
+
+export const bodyToReviewImages = (body) => {
+    return {
+        images: body.images
     }
 }

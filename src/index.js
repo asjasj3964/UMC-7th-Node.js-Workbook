@@ -6,7 +6,7 @@ import cors from 'cors';
 import { handleMemberSignUp, handleMemberUpdate } from "./controllers/member.controller.js";
 import { handleMemberMissionRegist, handleListMemberMission } from './controllers/participated-mission.controller.js';
 import { handleRestaurantRegist, handleListRestaurantReviews, handleListRestaurantMissions } from './controllers/restaurant.controller.js';
-import { handleReviewRegist, handleListReviews } from './controllers/review.controller.js';
+import { handleReviewRegist, handleListReviews, handlerReivewImageDelete, handlerChangeDirectory } from './controllers/review.controller.js';
 import { handleMissionRegist } from './controllers/mission.controller.js';
 import { handleMissionUpdateCompleted } from './controllers/participated-mission.controller.js';
 import swaggerAutogen from 'swagger-autogen';
@@ -55,7 +55,7 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    host: "localhost:3000", //"13.125.181.187:3000", // API가 실행되는 서버의 호스트 정보
+    host: "13.125.181.187:3000", // "localhost:3000", // API가 실행되는 서버의 호스트 정보
     components: { // 공통적으로 사용되는 스키마 정의
       responses: { // 응답 
         NotFoundErrorResponse: { // Not Found 에러 응답 
@@ -239,6 +239,16 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
             format: "int64"
           }
         },
+        ReviewIdParam: { // 식당 ID 파라미터 
+          name: "reviewId",
+          in: 'path',
+          required: true,
+          description: "리뷰의 ID 입력",
+          schema: {
+            type: "integer",
+            format: "int64"
+          }
+        },
       },
       examples: {
         ServerErrorExample: { // 서버 내부 에러 응답 예시
@@ -262,6 +272,19 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
             error: { 
               errorCode: "U404",
               reason: "존재하지 않는 회원",
+              data: {}
+            },
+            success: null 
+          },
+        },
+        ReviewNotFoundErrorExample: { // member Not Found 에러 응답 예시
+          summary: "존재하지 않는 리뷰",
+          description: "존재하지 않은 리뷰 ID로 조회하였습니다.",
+          value: {
+            resultType: "FAIL",
+            error: { 
+              errorCode: "U404",
+              reason: "존재하지 않는 리뷰",
               data: {}
             },
             success: null 
@@ -428,6 +451,10 @@ app.post("/restaurants", handleRestaurantRegist);
 
 app.post("/reviews", imageUploader.array('images', 10), handleReviewRegist);
 // curl.exe -X POST "http://localhost:3000/reviews" -H "Content-Type: application/json" -d '{\"member\": 1, \"restaurant\":11, \"rating\": 3.0, \"content\": \"사장님이 친절해요\"}'
+
+app.delete("/reviews/:reviewId/images", handlerReivewImageDelete);
+
+app.patch("/reviews/:reviewId/images", handlerChangeDirectory);
 
 app.post("/missions", handleMissionRegist);
 // curl.exe -X POST "http://localhost:3000/missions" -H "Content-Type: application/json" -d '{\"restaurant\": 1, \"name\":\"미션 이름\", \"introduction\": \"미션 소개\", \"deadline\": \"2025-01-01 12:00:00\", \"points\": 10000, \"status\": 0}'

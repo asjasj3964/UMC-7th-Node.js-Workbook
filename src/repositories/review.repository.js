@@ -1,5 +1,7 @@
 import { prisma } from "../db.config.js";
 import { ServerError } from "../errors.js";
+import { deleteImageFromS3 } from "../middleware/image.deleter.js";
+import { imageMover } from "../middleware/image.mover.js";
 
 // 리뷰 데이터 삽입 (리뷰 등록) & 리뷰 ID 반환
 export const addReview = async(data) => {
@@ -20,6 +22,39 @@ export const addReview = async(data) => {
             }
         });
         return created.id;
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
+}
+
+export const deleteReivewImage = async(imageId) => {
+    try{
+        const reviewImageUrl = await prisma.image.findFirst({
+            where: {
+                id: imageId,
+            }
+        })
+        deleteImageFromS3(reviewImageUrl.imageUrl);
+        await prisma.image.delete({
+            where: {
+                id: imageId,
+            }
+        })
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
+}
+
+export const moveReivewImage = async(imageId, directory) => {
+    try{
+        const reviewImageUrl = await prisma.image.findFirst({
+            where: {
+                id: imageId,
+            }
+        })
+        imageMover(reviewImageUrl.imageUrl, directory);
     }
     catch(err){
         throw new ServerError(`서버 내부 오류: ${err.stack}`);
@@ -60,6 +95,20 @@ export const getReview = async(reviewId) => {
             },
         }
         return formattedReview;
+    }
+    catch(err){
+        throw new ServerError(`서버 내부 오류: ${err.stack}`);
+    }
+}
+
+export const getReviewImages = async(reviewId) => {
+    try{
+        const reviewImages = await prisma.image.findMany({
+            where: {
+                reviewId: reviewId,
+            }
+        })
+        return reviewImages;
     }
     catch(err){
         throw new ServerError(`서버 내부 오류: ${err.stack}`);
