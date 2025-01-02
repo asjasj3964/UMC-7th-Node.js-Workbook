@@ -378,7 +378,14 @@ app.use((req, res, next) => {
 })
 
 
-app.use(cors()); // cors 방식 허용
+// app.use(cors()); // cors 방식 허용
+app.use(
+  cors({
+    origin: "*", // 모든 출처 허용 (필요 시 도메인으로 제한 가능)
+    methods: ["GET", "POST", "PATCH", "DELETE"], // 허용할 HTTP 메서드
+    allowedHeaders: ["Content-Type", "Authorization"], // 허용할 요청 헤더
+  })
+);
 app.use(express.static("public")) // 정적 파일 접근
 app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도록 한다. (JSON 형태로 요청 body를 파싱하기 위함)
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
