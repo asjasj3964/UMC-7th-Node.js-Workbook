@@ -1,5 +1,4 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { Datetime } from "aws-sdk/clients/costoptimizationhub.js";
 
 export type BodyToMissionType = {
     restaurantId: bigint,
