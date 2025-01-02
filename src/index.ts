@@ -18,6 +18,7 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { prisma } from "./db.config.ts";
 import { handleFavoriteFoodKindUpdate } from './controllers/favortie-foodkind.controller.ts';
 import { imageUploader } from './middleware/image.uploader.ts';
+import path from 'path';
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
@@ -44,6 +45,7 @@ passport.deserializeUser<{
 const app = express();
 // const port = 3000 // 서버 실행 포트를 3000번으로 지정
 const port = process.env.PORT;
+app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 
 app.use(
   "/docs", // Swagger UI가 표시될 경로
@@ -69,7 +71,11 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    host: "ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000", // API가 실행되는 서버의 호스트 정보
+    //host: "ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000", // API가 실행되는 서버의 호스트 정보
+    servers: [ // 여기에 API 서버 URL을 작성
+      { url: "http://ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000" },
+      { url: "http://localhost:3000" } // 로컬 테스트용
+    ],
     components: { // 공통적으로 사용되는 스키마 정의
       responses: { // 응답 
         NotFoundErrorResponse: { // Not Found 에러 응답 
