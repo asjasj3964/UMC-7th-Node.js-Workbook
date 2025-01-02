@@ -1,9 +1,11 @@
-import AWS from "aws-sdk";
+import { CopyObjectCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-const s3 = new AWS.S3({ // AWS SDK의 S3 객체 생성
+const s3 = new S3Client({ // AWS SDK의 S3 객체 생성
     region: process.env.AWS_REGION, // 위치한 AWS 리전
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS 계정의 엑세스 키 
-    secretAccessKey: process.env.AWS_SECRET_KEY, // AWS 계정의 시크릿 액세스 키
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS 계정의 엑세스 키 
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // AWS 계정의 시크릿 액세스 키
+    }
 });
 
 // S3에 저장된 이미지를 이동시키는 함수
@@ -19,18 +21,21 @@ export const imageMover = async(imageUrl: string, directory: string,) => {
 
     console.log("targetKey: ", targetKey);
     console.log("decodedKey: ", decodedKey);
-    await s3
-        .copyObject({ // 객체 복사
-            Bucket: bucketName!.toString(),
-            CopySource: copySource, // 원본 경로
-            Key: decodedTargetKey // 대상 경로
-        })
-        .promise();
+    const copyParams = {
+        Bucket: bucketName, // 대상 버킷
+        CopySource: copySource, // 원본 경로 (버킷 이름/객체 키)
+        Key: decodedTargetKey, // 대상 경로
+    };
 
-    await s3
-        .deleteObject({ // 원본 객체 삭제
-            Bucket: bucketName!.toString(),
-            Key: decodedKey,
-        })
-        .promise();
+    const copyCommand = new CopyObjectCommand(copyParams);
+    await s3.send(copyCommand);
+
+    // 원본 객체 삭제
+    const deleteParams = {
+        Bucket: bucketName,
+        Key: decodedKey,
+    };
+
+    const deleteCommand = new DeleteObjectCommand(deleteParams);
+    await s3.send(deleteCommand);
 }
