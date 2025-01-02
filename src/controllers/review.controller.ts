@@ -88,7 +88,7 @@ export const handleReviewRegist = async(req: Request, res: Response, next: NextF
     console.log("리뷰 등록");
     console.log("body: ", req.body);
     console.log("req.files:", req.files);
-    const uploadedFiles = req.files!.map((file) => (file.location));
+    const uploadedFiles = req.files!.map((file) => (file.destination));
     console.log("files", uploadedFiles);
     if (!req.user) {
         throw new NotExistError("로그인 또는 회원가입을 해주세요.", req.body);

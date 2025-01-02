@@ -4,7 +4,7 @@ import multerS3 from "multer-s3";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Response, Request, NextFunction } from 'express';
-import { BaseError } from '../errors';
+import { BaseError } from '../errors.ts';
 
 const s3 = new S3Client({ // AWS SDK의 S3 객체 생성
     region: process.env.AWS_REGION, // 위치한 AWS 리전
@@ -27,7 +27,7 @@ export const imageUploader = multer({ // 파일 업로드 처리를 위한 미�
             const uuid = uuidv4(); // UUID 생성
             // extension 확인을 위한 코드 (확장자 검사용)
             if (!allowedExtensions.includes(extension)) { // 업로드 파일의 확장자가 허용된 목록에 없을 경우
-                return callback(new BaseError(status.WRONG_EXTENSION));
+                return callback(new BaseError("Wrong file extension", 400));
             }
             callback(null, `${uploadDirectory}/${uuid}_${file.originalname}`); // S3 버킷에서 파일이 저장될 key
         },
