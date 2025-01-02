@@ -48,6 +48,7 @@ jobs:
               run: |
                 ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm install'
                 ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm exec prisma generate'
+                ssh UMC-7th-Nodejs-Wenty 'cd /opt/app; npm run build'
 
             - name: Apply prisma migrations # steps.paths-filter.outputs.prisma를 통해 prisma 폴더의 파일의 변경 사항이 있다면 EC2 서버에 추가적으로 DB Migrate를 실행한다. 
               if: steps.paths-filter.outputs.prisma == 'true' 

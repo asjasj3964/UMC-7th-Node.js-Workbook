@@ -1,0 +1,7 @@
+{
+    "extends": "@tsconfig/node20/tsconfig.json",
+    "compilerOptions": {
+        "allowImportingTsExtensions": true, // .ts 확장자를 명시적으로 허용
+        "noEmit": true // 빌드 출력 생성 X
+    }
+}
