@@ -71,7 +71,7 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    //host: "ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000", // API가 실행되는 서버의 호스트 정보
+    //host: "http://13.125.181.187:3000", // API가 실행되는 서버의 호스트 정보
     servers: [ // 여기에 API 서버 URL을 작성
       { url: "http://ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000" },
       { url: "http://localhost:3000" } // 로컬 테스트용
