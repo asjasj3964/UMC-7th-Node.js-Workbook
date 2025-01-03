@@ -2,6 +2,13 @@
     "extends": "@tsconfig/node20/tsconfig.json",
     "compilerOptions": {
         "allowImportingTsExtensions": true, // .ts 확장자를 명시적으로 허용
-        "noEmit": true // 빌드 출력 생성 X
-    }
+        "noEmit": true, // 빌드 출력 생성 X
+        // "outDir": "./dist",                 // 컴파일된 파일 출력 경로
+        // "rootDir": "./src",                 // 소스 파일 경로
+        // "esModuleInterop": true,            // CommonJS와 ES Module 호환
+        // "resolveJsonModule": true,          // JSON 모듈 임포트 허용
+        // "target": "ES2020"                  // 컴파일 타겟 버전        
+    },
+    // "include": ["src/**/*"],              // 컴파일 포함 파일 경로
+    // "exclude": ["node_modules", "dist"]   // 컴파일 제외 경로
 }
