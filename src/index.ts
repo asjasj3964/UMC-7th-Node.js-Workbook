@@ -53,6 +53,7 @@ app.use(
   swaggerUiExpress.setup({}, { // Swagger UI의 설정 초기화, Swagger 문서를 불러오는 방식 정의
     swaggerOptions: { // Swagger UI의 동작 제어
       url: "/openapi.json", // /openapi.json 경로에서 Swagger 문서를 가져오도록 설정
+      docExpansion: 'none',
     },
   })
 );
@@ -71,7 +72,7 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       title: "UMC 7th",
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
-    host: "localhost:3000", // API가 실행되는 서버의 호스트 정보
+    host: "13.125.181.187:3000", // API가 실행되는 서버의 호스트 정보
     components: { // 공통적으로 사용되는 스키마 정의
       responses: { // 응답 
         NotFoundErrorResponse: { // Not Found 에러 응답 
