@@ -18,8 +18,8 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { prisma } from "./db.config.ts";
 import { handleFavoriteFoodKindUpdate } from './controllers/favortie-foodkind.controller.ts';
 import { imageUploader } from './middleware/image.uploader.ts';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
 
 dotenv.config(); // .env 파일에서 환경변수를 읽고 process.enc. 객체로 접근
 
@@ -48,14 +48,14 @@ const app = express();
 const port = process.env.PORT;
 // app.use(express.static("public")) // 정적 파일 접근
 
-const __filename = fileURLToPath(import.meta.url); // 현재 파일의 전체 경로
-const __dirname = path.dirname(__filename); // 파일의 디렉터리 경로
+// const __filename = fileURLToPath(import.meta.url); // 현재 파일의 전체 경로
+// const __dirname = path.dirname(__filename); // 파일의 디렉터리 경로
 
-// Swagger UI 정적 파일 제공
-app.use(
-  '/api-docs',
-  express.static(path.join(__dirname, '../node_modules/swagger-ui-dist')) // 정확한 경로로 변경
-);
+// // Swagger UI 정적 파일 제공
+// app.use(
+//   '/api-docs',
+//   express.static(path.join(__dirname, '../node_modules/swagger-ui-dist')) // 정확한 경로로 변경
+// );
 
 app.use(
   "/api-docs", // Swagger UI가 표시될 경로
@@ -398,7 +398,7 @@ app.use(cors()); // cors 방식 허용
 //     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 요청 헤더
 //   })
 // );
-// app.use(express.static("public")) // 정적 파일 접근
+app.use(express.static("public")) // 정적 파일 접근
 // app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도록 한다. (JSON 형태로 요청 body를 파싱하기 위함)
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
