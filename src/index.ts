@@ -388,8 +388,8 @@ app.use(cors()); // cors 방식 허용
 //     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 요청 헤더
 //   })
 // );
-// app.use(express.static("public")) // 정적 파일 접근
-app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
+app.use(express.static("public")) // 정적 파일 접근
+// app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도록 한다. (JSON 형태로 요청 body를 파싱하기 위함)
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 
