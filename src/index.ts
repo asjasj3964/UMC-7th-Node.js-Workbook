@@ -47,29 +47,12 @@ const port = process.env.PORT;
 
 
 app.use(
-  "/docs", // Swagger UI가 표시될 경로
+  "/api-docs", // Swagger UI가 표시될 경로
   swaggerUiExpress.serve, // Swagger UI의 정적 파일(HTML, CSS, JS)을 제공하는 미들웨어
   swaggerUiExpress.setup({}, { // Swagger UI의 설정 초기화, Swagger 문서를 불러오는 방식 정의
-    swaggerOptions: {
-      url: "/openapi.json",
-      //docExpansion: 'none',
-      persistAuthorization: true,
+    swaggerOptions: { // Swagger UI의 동작 제어
+      url: "/openapi.json", // /openapi.json 경로에서 Swagger 문서를 가져오도록 설정
     },
-    customSiteTitle: 'API Docs',
-    customfavIcon: '/favicon.ico',
-    customCss: `
-      @import url('https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css');
-      @import url('https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.css');
-    `,
-    customJs: `
-      var script1 = document.createElement('script');
-      script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js';
-      document.head.appendChild(script1);
-
-      var script2 = document.createElement('script');
-      script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js';
-      document.head.appendChild(script2);
-    `,
   })
 );
 
