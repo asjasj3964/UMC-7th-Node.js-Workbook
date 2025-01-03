@@ -16,6 +16,7 @@
     "@aws-sdk/client-s3": "^3.717.0",
     "@prisma/client": "^5.22.0",
     "@quixo3/prisma-session-store": "^3.1.13",
+    "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^5.0.0",
