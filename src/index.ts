@@ -45,7 +45,7 @@ passport.deserializeUser<{
 const app = express();
 // const port = 3000 // 서버 실행 포트를 3000번으로 지정
 const port = process.env.PORT;
-app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
+// app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 
 app.use(
   "/docs", // Swagger UI가 표시될 경로
@@ -72,10 +72,6 @@ app.get("/openapi.json", async(req, res, next) => { // 클라이언트의 Swagge
       description: "UMC 7th Node.js 테스트 프로젝트"
     },
     host: "13.125.181.187:3000", // API가 실행되는 서버의 호스트 정보
-    // servers: [ // 여기에 API 서버 URL을 작성
-    //   { url: "http://ec2-13-125-181-187.ap-northeast-2.compute.amazonaws.com:3000" },
-    //   { url: "http://localhost:3000" } // 로컬 테스트용
-    // ],
     components: { // 공통적으로 사용되는 스키마 정의
       responses: { // 응답 
         NotFoundErrorResponse: { // Not Found 에러 응답 
@@ -384,15 +380,16 @@ app.use((req, res, next) => {
 })
 
 
-// app.use(cors()); // cors 방식 허용
-app.use(
-  cors({
-    origin: "*", // 모든 출처 허용 (필요 시 도메인으로 제한 가능)
-    methods: ["GET", "POST", "PATCH", "DELETE"], // 허용할 HTTP 메서드
-    allowedHeaders: ["Content-Type", "Authorization"], // 허용할 요청 헤더
-  })
-);
-app.use(express.static("public")) // 정적 파일 접근
+app.use(cors()); // cors 방식 허용
+// app.use(
+//   cors({
+//     origin: "*", // 모든 출처 허용 (필요 시 도메인으로 제한 가능)
+//     methods: ["GET", "POST", "PATCH", "DELETE"], // 허용할 HTTP 메서드
+//     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 요청 헤더
+//   })
+// );
+// app.use(express.static("public")) // 정적 파일 접근
+app.use('/docs', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 app.use(express.json()); // request의 본문을 JSON으로 해석할 수 있도록 한다. (JSON 형태로 요청 body를 파싱하기 위함)
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 
